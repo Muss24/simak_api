@@ -18,8 +18,8 @@ ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 try {
-    require 'koneksi.php';
-
+    require_once __DIR__ . '/koneksi.php';
+    
     $qr_scanned = $_POST['qr_code'] ?? '';
     $event_id = $_POST['event_id'] ?? 1;
 

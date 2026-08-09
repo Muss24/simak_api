@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-require 'koneksi.php';
+require_once __DIR__ . '/koneksi.php';
 
 $user_id = $_POST['user_id'] ?? '';
 

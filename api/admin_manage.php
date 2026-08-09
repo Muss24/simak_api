@@ -7,7 +7,7 @@ header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit(); }
 
-require 'koneksi.php';
+require_once __DIR__ . '/koneksi.php';
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
 try {

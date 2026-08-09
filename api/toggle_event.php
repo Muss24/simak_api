@@ -4,7 +4,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-require 'koneksi.php';
+require_once __DIR__ . '/koneksi.php';
 
 $event_id = $_POST['event_id'] ?? 1;
 $status = $_POST['status']; // 'aktif' atau 'selesai'
