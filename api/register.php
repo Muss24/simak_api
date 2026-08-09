@@ -13,7 +13,7 @@ $role = 'user';
 $qr_code_hash = 'USR-' . bin2hex(random_bytes(8));
 
 try {
-    $stmt = $conn->prepare("INSERT INTO users (nama_lengkap, nomor_porsi, whatsapp, password, role, qr_code_hash) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO users (nama_lengkap, nomor_porsi, whatsapp, password, role, qr_code_hash) VALUES (?, ?, ?, ?, ?, ?)");
     if ($stmt->execute([$nama, $nomor_porsi, $whatsapp, $password, $role, $qr_code_hash])) {
         echo json_encode([
             "status" => "success",

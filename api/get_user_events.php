@@ -21,7 +21,7 @@ if(empty($user_id)) {
 
 try {
     // Ambil data event yang sudah dihadiri user (JOIN tabel attendances dan events)
-    $stmt = $conn->prepare("
+    $stmt = $pdo->prepare("
         SELECT e.id, e.nama_event, e.status, a.waktu_absen 
         FROM attendances a 
         JOIN events e ON a.event_id = e.id 
