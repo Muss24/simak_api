@@ -14,6 +14,7 @@ try {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
+    echo json_encode(["status" => "success", "message" => "Koneksi ke database berhasil."]);
 } catch (\PDOException $e) {
     echo json_encode([
         "status" => "error",
