@@ -1,11 +1,12 @@
 <?php
 // api/koneksi.php
 
-$host = getenv('DB_HOST'); // Diisi dari Vercel (Host Waguri)
-$db   = getenv('DB_NAME'); // Diisi dari Vercel (Nama DB Waguri)
-$user = getenv('DB_USER'); // Diisi dari Vercel (User DB Waguri)
-$pass = getenv('DB_PASS'); // Diisi dari Vercel (Password DB Waguri)
-$port = getenv('DB_PORT') ?: '3306';
+// Mendukung variabel dari Railway (MYSQLHOST) atau kustom Vercel (DB_HOST)
+$host = getenv('MYSQLHOST') ?: getenv('DB_HOST');
+$db   = getenv('MYSQLDATABASE') ?: getenv('DB_NAME');
+$user = getenv('MYSQLUSER') ?: getenv('DB_USER');
+$pass = getenv('MYSQLPASSWORD') ?: getenv('DB_PASS');
+$port = getenv('MYSQLPORT') ?: getenv('DB_PORT') ?: '3306';
 
 try {
     $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
@@ -16,7 +17,7 @@ try {
 } catch (\PDOException $e) {
     echo json_encode([
         "status" => "error",
-        "message" => "Gagal terhubung ke database Waguri: " . $e->getMessage()
+        "message" => "Gagal terhubung ke database Railway: " . $e->getMessage()
     ]);
     exit;
 }
