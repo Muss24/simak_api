@@ -7,7 +7,7 @@ require 'koneksi.php';
 
 try {
     // Mengambil data event. Kita gunakan LIMIT 1 karena fokus pada satu event permanen.
-    $stmt = $pdo->query("SELECT id, nama_event, status FROM events LIMIT 1");
+    $stmt = $conn->query("SELECT id, nama_event, status FROM events LIMIT 1");
     $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if ($events) {

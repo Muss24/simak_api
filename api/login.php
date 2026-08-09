@@ -15,7 +15,7 @@ $nomor_porsi = $_POST['nomor_porsi'] ?? '';
 $password = $_POST['password'] ?? '';
 
 // PERBAIKAN: Tambahkan nomor_porsi dan qr_code_hash di dalam SELECT
-$stmt = $pdo->prepare("SELECT id, nama_lengkap, nomor_porsi, role, password, qr_code_hash FROM users WHERE nomor_porsi = ?");
+$stmt = $conn->prepare("SELECT id, nama_lengkap, nomor_porsi, role, password, qr_code_hash FROM users WHERE nomor_porsi = ?");
 $stmt->execute([$nomor_porsi]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

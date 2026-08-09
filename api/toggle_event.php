@@ -9,7 +9,7 @@ require 'koneksi.php';
 $event_id = $_POST['event_id'] ?? 1;
 $status = $_POST['status']; // 'aktif' atau 'selesai'
 
-$stmt = $pdo->prepare("UPDATE events SET status = ? WHERE id = ?");
+$stmt = $conn->prepare("UPDATE events SET status = ? WHERE id = ?");
 if ($stmt->execute([$status, $event_id])) {
     echo json_encode(["status" => "success", "message" => "Status event berhasil diubah menjadi " . $status]);
 } else {

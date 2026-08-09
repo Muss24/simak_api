@@ -29,7 +29,7 @@ try {
     }
 
     // Cek apakah event ada dan berstatus aktif
-    $cek_event = $pdo->prepare("SELECT status FROM events WHERE id = ?");
+    $cek_event = $conn->prepare("SELECT status FROM events WHERE id = ?");
     $cek_event->execute([$event_id]);
     $event = $cek_event->fetch(PDO::FETCH_ASSOC);
 
@@ -39,20 +39,20 @@ try {
     }
 
     // Cari data user berdasarkan QR Code
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE qr_code_hash = ?");
+    $stmt = $conn->prepare("SELECT id FROM users WHERE qr_code_hash = ?");
     $stmt->execute([$qr_scanned]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
         // Cek apakah user sudah absen di event ini
-        $check_stmt = $pdo->prepare("SELECT id FROM attendances WHERE user_id = ? AND event_id = ?");
+        $check_stmt = $conn->prepare("SELECT id FROM attendances WHERE user_id = ? AND event_id = ?");
         $check_stmt->execute([$user['id'], $event_id]);
         
         if ($check_stmt->rowCount() > 0) {
             echo json_encode(["status" => "warning", "message" => "Peserta ini sudah pernah absen."]);
         } else {
             // Catat absensi
-            $insert = $pdo->prepare("INSERT INTO attendances (user_id, event_id) VALUES (?, ?)");
+            $insert = $conn->prepare("INSERT INTO attendances (user_id, event_id) VALUES (?, ?)");
             if($insert->execute([$user['id'], $event_id])) {
                 echo json_encode(["status" => "success", "message" => "Absensi berhasil dicatat!"]);
             } else {

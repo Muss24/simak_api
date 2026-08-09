@@ -22,7 +22,7 @@ if(empty($user_id) || empty($event_id)) {
 
 try {
     // 1. Cek apakah user sudah absen di event ini
-    $stmt_absen = $pdo->prepare("SELECT id FROM attendances WHERE user_id = ? AND event_id = ?");
+    $stmt_absen = $conn->prepare("SELECT id FROM attendances WHERE user_id = ? AND event_id = ?");
     $stmt_absen->execute([$user_id, $event_id]);
 
     if ($stmt_absen->rowCount() == 0) {
@@ -31,7 +31,7 @@ try {
     }
 
     // 2. Cek apakah event sedang aktif
-    $stmt_event = $pdo->prepare("SELECT status FROM events WHERE id = ?");
+    $stmt_event = $conn->prepare("SELECT status FROM events WHERE id = ?");
     $stmt_event->execute([$event_id]);
     $event = $stmt_event->fetch(PDO::FETCH_ASSOC);
 
@@ -41,7 +41,7 @@ try {
     }
 
     // 3. Ambil data materi TERMASUK file_path
-    $stmt_materi = $pdo->prepare("SELECT id, judul, konten, file_path FROM materials WHERE event_id = ?");
+    $stmt_materi = $conn->prepare("SELECT id, judul, konten, file_path FROM materials WHERE event_id = ?");
     $stmt_materi->execute([$event_id]);
     $materials = $stmt_materi->fetchAll(PDO::FETCH_ASSOC);
 
