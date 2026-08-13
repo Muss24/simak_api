@@ -1,6 +1,9 @@
 <?php
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
+
+header("Access-Control-Allow-Origin: $origin");
 header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: http://localhost:5173");
+// header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: GET");
 
 require_once __DIR__ . '/koneksi.php';
