@@ -30,7 +30,7 @@ try {
     $foto_profil = $_POST['foto_profil'] ?? null;
     $nama_referensi = $_POST['nama_referensi'] ?? null;
     $no_wa_referensi = $_POST['no_wa_referensi'] ?? null;
-    $id_asal_referensi = $_POST['id_asal_referensi'] ?? null;
+    $id_asal_referensi = empty($_POST['id_asal_referensi']) ? null : (int)$_POST['id_asal_referensi'];
     $asal_referensi_lainnya = $_POST['asal_referensi_lainnya'] ?? null;
     
     $nama_ayah_kandung = $_POST['nama_ayah_kandung'] ?? '';
