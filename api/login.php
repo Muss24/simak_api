@@ -25,12 +25,17 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 if ($user && password_verify($password, $user['password'])) {
     unset($user['password']); 
     
-    echo json_encode([
+    // Perhatikan tambahan kurung siku [ ] untuk membungkus object
+    echo json_encode([[
         "status" => "success",
-        "message" => "Login berhasil",
+        "message" => "login successfully",
         "data" => $user 
-    ]);
+    ]]);
 } else {
-    echo json_encode(["status" => "error", "message" => "Nomor Porsi atau Password salah"]);
+    // Dibungkus juga untuk respons error agar seragam
+    echo json_encode([[
+        "status" => "error",
+        "message" => "Nomor Porsi atau Password salah"
+    ]]);
 }
 ?>
