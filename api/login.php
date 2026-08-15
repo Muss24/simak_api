@@ -17,19 +17,18 @@ require_once __DIR__ . '/koneksi.php';
 $nomor_porsi = $_POST['nomor_porsi'] ?? '';
 $password = $_POST['password'] ?? '';
 
-// PERBAIKAN: Tambahkan nomor_porsi dan qr_code_hash di dalam SELECT
-$stmt = $conn->prepare("SELECT id, nama_lengkap, nomor_porsi, role, password, qr_code_hash FROM users WHERE nomor_porsi = ?");
+// Ambil langsung kolom is_profile_complete dari tabel users
+$stmt = $conn->prepare("SELECT id, nama_lengkap, nomor_porsi, role, password, qr_code_hash, is_profile_complete FROM users WHERE nomor_porsi = ?");
 $stmt->execute([$nomor_porsi]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($user && password_verify($password, $user['password'])) {
-    // Jangan kembalikan password ke frontend
     unset($user['password']); 
     
     echo json_encode([
         "status" => "success",
         "message" => "Login berhasil",
-        "data" => $user // Sekarang data ini sudah memuat qr_code_hash
+        "data" => $user 
     ]);
 } else {
     echo json_encode(["status" => "error", "message" => "Nomor Porsi atau Password salah"]);
