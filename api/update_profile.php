@@ -21,10 +21,13 @@ if (empty($user_id)) {
 try {
     $conn->beginTransaction();
 
+    // 1. Cek apakah pendaftar dengan user_id ini sudah ada
     $stmt_check = $conn->prepare("SELECT id_pendaftar FROM pendaftar WHERE user_id = ?");
     $stmt_check->execute([$user_id]);
     $existing = $stmt_check->fetch(PDO::FETCH_ASSOC);
 
+    // Ambil data input dari POST (termasuk foto_profil)
+    $foto_profil = $_POST['foto_profil'] ?? null;
     $nama_referensi = $_POST['nama_referensi'] ?? null;
     $no_wa_referensi = $_POST['no_wa_referensi'] ?? null;
     $id_asal_referensi = $_POST['id_asal_referensi'] ?? null;
@@ -50,9 +53,10 @@ try {
 
     if ($existing) {
         $id_pendaftar = $existing['id_pendaftar'];
+        // Terdapat 20 tanda tanya untuk SET, dan 1 tanda tanya untuk WHERE. Total = 21 Parameter.
         $stmt_update = $conn->prepare("
             UPDATE pendaftar SET 
-                nama_referensi = ?, no_wa_referensi = ?, id_asal_referensi = ?, asal_referensi_lainnya = ?,
+                foto_profil = ?, nama_referensi = ?, no_wa_referensi = ?, id_asal_referensi = ?, asal_referensi_lainnya = ?,
                 nama_ayah_kandung = ?, alamat_sppa = ?, desa_kelurahan = ?, 
                 id_kecamatan = ?, kecamatan_lainnya = ?, jenis_kelamin = ?, 
                 tempat_lahir = ?, tempat_lahir_lainnya = ?, tanggal_lahir = ?, 
@@ -62,28 +66,29 @@ try {
             WHERE user_id = ?
         ");
         $stmt_update->execute([
-            $nama_referensi, $no_wa_referensi, $id_asal_referensi, $asal_referensi_lainnya,
+            $foto_profil, $nama_referensi, $no_wa_referensi, $id_asal_referensi, $asal_referensi_lainnya,
             $nama_ayah_kandung, $alamat_sppa, $desa_kelurahan, 
             $id_kecamatan, $kecamatan_lainnya, $jenis_kelamin, 
             $tempat_lahir, $tempat_lahir_lainnya, $tanggal_lahir, 
             $pendidikan_terakhir, $program_keberangkatan, 
             $program_keberangkatan_lainnya, $pengalaman_haji_umroh, 
             $berangkat_bersama, $berangkat_bersama_lainnya, 
-            $user_id
+            $user_id // Parameter ke-21
         ]);
     } else {
+        // Terdapat 21 Tanda Tanya (?) dan 21 Kolom
         $stmt_insert = $conn->prepare("
             INSERT INTO pendaftar (
-                user_id, nama_referensi, no_wa_referensi, id_asal_referensi, asal_referensi_lainnya,
+                user_id, foto_profil, nama_referensi, no_wa_referensi, id_asal_referensi, asal_referensi_lainnya,
                 nama_ayah_kandung, alamat_sppa, desa_kelurahan, id_kecamatan, 
                 kecamatan_lainnya, jenis_kelamin, tempat_lahir, tempat_lahir_lainnya, 
                 tanggal_lahir, pendidikan_terakhir, program_keberangkatan, 
                 program_keberangkatan_lainnya, pengalaman_haji_umroh, berangkat_bersama, 
                 berangkat_bersama_lainnya        
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt_insert->execute([
-            $user_id, $nama_referensi, $no_wa_referensi, $id_asal_referensi, $asal_referensi_lainnya,
+            $user_id, $foto_profil, $nama_referensi, $no_wa_referensi, $id_asal_referensi, $asal_referensi_lainnya,
             $nama_ayah_kandung, $alamat_sppa, $desa_kelurahan, $id_kecamatan, 
             $kecamatan_lainnya, $jenis_kelamin, $tempat_lahir, $tempat_lahir_lainnya, 
             $tanggal_lahir, $pendidikan_terakhir, $program_keberangkatan, 
@@ -93,11 +98,13 @@ try {
         $id_pendaftar = $conn->lastInsertId();
     }
 
+    // 2. Hapus relasi checkbox lama
     $conn->prepare("DELETE FROM pendaftar_kemampuan WHERE id_pendaftar = ?")->execute([$id_pendaftar]);
     $conn->prepare("DELETE FROM pendaftar_hal_positif WHERE id_pendaftar = ?")->execute([$id_pendaftar]);
     $conn->prepare("DELETE FROM pendaftar_kesehatan WHERE id_pendaftar = ?")->execute([$id_pendaftar]);
     $conn->prepare("DELETE FROM pendaftar_pekerjaan WHERE id_pendaftar = ?")->execute([$id_pendaftar]);
 
+    // 3. Masukkan data Checkbox ke Tabel Relasi
     if (!empty($_POST['kemampuans']) && is_array($_POST['kemampuans'])) {
         $stmt_kemampuan = $conn->prepare("INSERT INTO pendaftar_kemampuan (id_pendaftar, id_kemampuan, keterangan_lainnya) VALUES (?, ?, ?)");
         foreach ($_POST['kemampuans'] as $id_kemampuan) {
@@ -132,9 +139,11 @@ try {
 
     $conn->commit();
 
+    // 4. Update status kelengkapan profil di tabel users
     $stmt_set_complete = $conn->prepare("UPDATE users SET is_profile_complete = 1 WHERE id = ?");
     $stmt_set_complete->execute([$user_id]);
 
+    // 5. Kembalikan data user terbaru (Hanya SATU keluaran JSON)
     $stmt_user = $conn->prepare("
         SELECT id, nama_lengkap, nomor_porsi, role, qr_code_hash, is_profile_complete 
         FROM users 
@@ -143,7 +152,6 @@ try {
     $stmt_user->execute([$user_id]);
     $updated_user = $stmt_user->fetch(PDO::FETCH_ASSOC);
 
-    // HANYA ADA SATU KELUARAN JSON DI SINI
     echo json_encode([
         "status" => "success",
         "message" => "Data diri pendaftar berhasil disimpan!",
