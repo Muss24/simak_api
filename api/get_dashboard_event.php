@@ -31,13 +31,11 @@ try {
     $user = $stmt_user->fetch(PDO::FETCH_ASSOC);
     $zona_user = $user['zona'] ?? '';
 
-    // PERBAIKAN: Hanya ambil event yang 'aktif' atau 'mendatang'. 
-    // Event yang 'selesai' otomatis diabaikan untuk dashboard utama.
     $sql = "
-        SELECT e.id, e.nama_event, e.waktu_event, e.status, e.jenis_event, e.zona_target,
+        SELECT e.id, e.nama_event, e.tempat, e.pembicara, e.waktu_event, e.status, e.jenis_event, e.zona_target,
                (SELECT COUNT(id) FROM attendances WHERE event_id = e.id AND user_id = ?) as is_attended
         FROM events e
-        WHERE (e.jenis_event = 'universal' || e.zona_target = ?)
+        WHERE (e.jenis_event = 'umum' OR e.zona_target = ?) 
           AND e.status IN ('aktif', 'mendatang')
         ORDER BY 
           FIELD(e.status, 'aktif', 'mendatang'), 
@@ -48,7 +46,7 @@ try {
     
     $stmt = $conn->prepare($sql);
     $stmt->execute([$user_id, $zona_user]);
-    $event = $stmt_user->fetch(PDO::FETCH_ASSOC);
+    $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($event) {
         echo json_encode(["status" => "success", "data" => $event]);

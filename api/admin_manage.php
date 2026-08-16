@@ -21,19 +21,22 @@ try {
     
     elseif ($action === 'create_event') {
         $nama = $_POST['nama_event'];
-        $jenis = $_POST['jenis_event'] ?? 'universal';
-        $zona_target = $_POST['zona_target'] ?? null;
+        // Tangkap data baru
+        $tempat = $_POST['tempat'] ?? '';
+        $pembicara = $_POST['pembicara'] ?? '';
         
-        // Opsional: Tangkap waktu_event dari form admin, jika tidak ada gunakan waktu saat ini
+        $jenis = $_POST['jenis_event'] ?? 'umum'; // Ubah default jadi umum
+        $zona_target = $_POST['zona_target'] ?? null;
         $waktu = $_POST['waktu_event'] ?? date('Y-m-d H:i:s'); 
         
-        if ($jenis === 'universal') {
+        // Pastikan zona_target null jika eventnya umum
+        if ($jenis === 'umum') {
             $zona_target = null;
         }
 
-        // PERHATIKAN: Status di-hardcode menjadi 'mendatang' saat event baru dibuat
-        $stmt = $conn->prepare("INSERT INTO events (nama_event, waktu_event, status, jenis_event, zona_target) VALUES (?, ?, 'mendatang', ?, ?)");
-        $stmt->execute([$nama, $waktu, $jenis, $zona_target]);
+        // Masukkan tempat dan pembicara ke dalam query INSERT
+        $stmt = $conn->prepare("INSERT INTO events (nama_event, tempat, pembicara, waktu_event, status, jenis_event, zona_target) VALUES (?, ?, ?, ?, 'mendatang', ?, ?)");
+        $stmt->execute([$nama, $tempat, $pembicara, $waktu, $jenis, $zona_target]);
         echo json_encode(["status" => "success", "message" => "Event berhasil dibuat dengan status mendatang."]);
     }
     
