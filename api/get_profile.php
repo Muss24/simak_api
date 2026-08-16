@@ -26,13 +26,14 @@ if(empty($user_id)) {
 }
 
 try {
-    $stmt = $conn->prepare(
-        "SELECT id, nama_lengkap, nomor_porsi, whatsapp, role, qr_code_hash, 
+    // Ambil semua data user termasuk ZONA
+    $stmt = $conn->prepare("
+        SELECT id, nama_lengkap, nomor_porsi, whatsapp, role, qr_code_hash, 
                address, birthDate, birthPlace, companion, education, experience, 
                fatherName, gender, healthCondition, is_completed, job, 
-               positiveTrait, program, skill, subDistrict, village, gambar 
-        FROM users WHERE id = ?"
-    );
+               positiveTrait, program, skill, subDistrict, zona, village, gambar 
+        FROM users WHERE id = ?
+    ");
     $stmt->execute([$user_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -21,10 +21,18 @@ try {
     
     elseif ($action === 'create_event') {
         $nama = $_POST['nama_event'];
-        $stmt = $conn->prepare("INSERT INTO events (nama_event, status) VALUES (?, 'selesai')");
-        $stmt->execute([$nama]);
-        echo json_encode(["status" => "success", "message" => "Event dibuat."]);
-    } 
+        $jenis = $_POST['jenis_event'] ?? 'universal';
+        $zona_target = $_POST['zona_target'] ?? null;
+        
+        // Pastikan zona_target null jika eventnya universal
+        if ($jenis === 'universal') {
+            $zona_target = null;
+        }
+
+        $stmt = $conn->prepare("INSERT INTO events (nama_event, status, jenis_event, zona_target) VALUES (?, 'selesai', ?, ?)");
+        $stmt->execute([$nama, $jenis, $zona_target]);
+        echo json_encode(["status" => "success", "message" => "Event berhasil dibuat."]);
+    }
     
     elseif ($action === 'toggle_event') {
         $id = $_POST['id'];

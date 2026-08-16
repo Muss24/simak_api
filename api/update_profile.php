@@ -15,12 +15,11 @@ require_once __DIR__ . '/koneksi.php';
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 
-// Jika ternyata request bukan JSON (fallback ke $_POST)
 if (!$data) {
     $data = $_POST;
 }
 
-// 2. AMBIL ID USER DARI PAYLOAD JSON
+// 2. AMBIL ID USER
 $user_id = $data['usr_id'] ?? '';
 
 if (empty($user_id)) {
@@ -28,7 +27,7 @@ if (empty($user_id)) {
     exit;
 }
 
-// 3. AMBIL DATA TEKS BIASA
+// 3. AMBIL DATA TEKS
 $address = $data['address'] ?? '';
 $birthDate = $data['birthDate'] ?? '';
 $birthPlace = $data['birthPlace'] ?? '';
@@ -37,46 +36,71 @@ $education = $data['education'] ?? '';
 $experience = $data['experience'] ?? '';
 $fatherName = $data['fatherName'] ?? '';
 $gender = $data['gender'] ?? '';
-$is_completed = !empty($data['is_completed']) ? 1 : 0; // Pastikan boolean tersimpan sebagai 1 atau 0 di database
+$is_completed = !empty($data['is_completed']) ? 1 : 0;
 $job = $data['job'] ?? '';
 $program = $data['program'] ?? '';
 $subDistrict = $data['subDistrict'] ?? '';
 $village = $data['village'] ?? '';
 
-// 4. AMBIL DATA ARRAY DAN JADIKAN STRING (KOMA SEPARATOR)
-// Karena JSON yang dikirim sudah berupa array murni, kita tinggal mengecek apakah itu array lalu meng-implode-nya
+// --- LOGIKA PENENTUAN ZONA BERDASARKAN KECAMATAN ---
+function tentukanZona($kecamatan) {
+    // Hilangkan spasi berlebih dan ubah ke huruf besar agar pengecekan kebal typo
+    $kecamatan = strtoupper(trim($kecamatan)); 
+    
+    $zonaA = ['CIKAMPEK', 'JATISARI', 'KOTABARU', 'PURWASARI', 'TIRTAMULYA'];
+    $zonaB = ['BANYUSARI', 'CILAMAYA KULON', 'CILAMAYA WETAN', 'LEMAHABANG', 'MAJALAYA', 'RAWAMERTA', 'TELAGASARI', 'TEMPURAN'];
+    $zonaC = ['CIAMPEL', 'KARAWANG TIMUR', 'KLARI'];
+    $zonaD = ['KARAWANG BARAT', 'TELUKJAMBE BARAT', 'TELUKJAMBE TIMUR'];
+    $zonaE = ['PANGKALAN', 'TEGALWARU'];
+    $zonaF = ['BATUJAYA', 'CIBUAYA', 'CILEBAR', 'JAYAKERTA', 'KUTAWALUYA', 'PAKISJAYA', 'PEDES', 'RENGASDENGKLOK', 'TIRTAJAYA'];
+
+    if (in_array($kecamatan, $zonaA)) return 'A';
+    if (in_array($kecamatan, $zonaB)) return 'B';
+    if (in_array($kecamatan, $zonaC)) return 'C';
+    if (in_array($kecamatan, $zonaD)) return 'D';
+    if (in_array($kecamatan, $zonaE)) return 'E';
+    if (in_array($kecamatan, $zonaF)) return 'F';
+    
+    return null; // Jika kecamatan tidak terdaftar di list
+}
+
+// Eksekusi fungsi untuk mendapatkan zona
+$zona = tentukanZona($subDistrict);
+
+// 4. AMBIL DATA ARRAY
 $healthCondition = (isset($data['healthCondition']) && is_array($data['healthCondition'])) ? implode(", ", $data['healthCondition']) : '';
 $positiveTrait = (isset($data['positiveTrait']) && is_array($data['positiveTrait'])) ? implode(", ", $data['positiveTrait']) : '';
 $skill = (isset($data['skill']) && is_array($data['skill'])) ? implode(", ", $data['skill']) : '';
 
-// 5. HANDLE URL GAMBAR (jika ada)
+// 5. HANDLE URL GAMBAR
 $gambar = $data['gambar'] ?? null;
 
 try {
+    // Tambahkan field `zona=?` ke dalam query SQL
     if ($gambar) {
         $sql = "UPDATE users SET 
                 address=?, birthDate=?, birthPlace=?, companion=?, education=?, 
                 experience=?, fatherName=?, gender=?, healthCondition=?, is_completed=?, 
-                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, village=?, gambar=? 
+                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?, gambar=? 
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             $address, $birthDate, $birthPlace, $companion, $education, 
             $experience, $fatherName, $gender, $healthCondition, $is_completed, 
-            $job, $positiveTrait, $program, $skill, $subDistrict, $village, $gambar, 
+            $job, $positiveTrait, $program, $skill, $subDistrict, $zona, $village, $gambar, 
             $user_id
         ]);
     } else {
         $sql = "UPDATE users SET 
                 address=?, birthDate=?, birthPlace=?, companion=?, education=?, 
                 experience=?, fatherName=?, gender=?, healthCondition=?, is_completed=?, 
-                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, village=? 
+                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=? 
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             $address, $birthDate, $birthPlace, $companion, $education, 
             $experience, $fatherName, $gender, $healthCondition, $is_completed, 
-            $job, $positiveTrait, $program, $skill, $subDistrict, $village, 
+            $job, $positiveTrait, $program, $skill, $subDistrict, $zona, $village, 
             $user_id
         ]);
     }
