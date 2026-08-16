@@ -24,14 +24,17 @@ try {
         $jenis = $_POST['jenis_event'] ?? 'universal';
         $zona_target = $_POST['zona_target'] ?? null;
         
-        // Pastikan zona_target null jika eventnya universal
+        // Opsional: Tangkap waktu_event dari form admin, jika tidak ada gunakan waktu saat ini
+        $waktu = $_POST['waktu_event'] ?? date('Y-m-d H:i:s'); 
+        
         if ($jenis === 'universal') {
             $zona_target = null;
         }
 
-        $stmt = $conn->prepare("INSERT INTO events (nama_event, status, jenis_event, zona_target) VALUES (?, 'selesai', ?, ?)");
-        $stmt->execute([$nama, $jenis, $zona_target]);
-        echo json_encode(["status" => "success", "message" => "Event berhasil dibuat."]);
+        // PERHATIKAN: Status di-hardcode menjadi 'mendatang' saat event baru dibuat
+        $stmt = $conn->prepare("INSERT INTO events (nama_event, waktu_event, status, jenis_event, zona_target) VALUES (?, ?, 'mendatang', ?, ?)");
+        $stmt->execute([$nama, $waktu, $jenis, $zona_target]);
+        echo json_encode(["status" => "success", "message" => "Event berhasil dibuat dengan status mendatang."]);
     }
     
     elseif ($action === 'toggle_event') {

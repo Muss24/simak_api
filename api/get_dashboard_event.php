@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-require_once __DIR__ . '/koneksi.php';
+require 'koneksi.php';
 
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
@@ -31,21 +31,32 @@ try {
     $user = $stmt_user->fetch(PDO::FETCH_ASSOC);
     $zona_user = $user['zona'] ?? '';
 
-    // LOGIKA JADWAL:
-    // Tarik SEMUA data event tanpa memandang status
+    // LOGIKA DASHBOARD:
+    // 1. Prioritaskan event yang 'aktif'
+    // 2. Jika tidak ada, ambil 1 event 'mendatang' terdekat.
+    // 3. Jangan tampilkan event yang sudah 'selesai'.
     $sql = "
         SELECT e.id, e.nama_event, e.waktu_event, e.status, e.jenis_event, e.zona_target,
                (SELECT COUNT(id) FROM attendances WHERE event_id = e.id AND user_id = ?) as is_attended
         FROM events e
         WHERE (e.jenis_event = 'universal' OR e.zona_target = ?)
-        ORDER BY e.waktu_event DESC, e.id DESC
+          AND e.status IN ('aktif', 'mendatang')
+        ORDER BY 
+          FIELD(e.status, 'aktif', 'mendatang'), 
+          e.waktu_event ASC, 
+          e.id ASC
+        LIMIT 1
     ";
     
     $stmt = $conn->prepare($sql);
     $stmt->execute([$user_id, $zona_user]);
-    $jadwal = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    echo json_encode(["status" => "success", "data" => $jadwal]);
+    if ($event) {
+        echo json_encode(["status" => "success", "data" => $event]);
+    } else {
+        echo json_encode(["status" => "success", "data" => null, "message" => "Tidak ada event aktif atau mendatang"]);
+    }
 
 } catch (Exception $e) {
     echo json_encode(["status" => "error", "message" => "Database Error: " . $e->getMessage()]);
