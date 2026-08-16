@@ -59,4 +59,5 @@ try {
 } catch (Exception $e) {
     echo json_encode(["status" => "error", "message" => "Database Error: " . $e->getMessage()]);
 }
+//
 ?>
