@@ -16,11 +16,12 @@ require_once __DIR__ . '/koneksi.php';
 
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
-if (!$data) $data = $_POST;
+if (!$data)
+    $data = $_POST;
 
-$user_id = $data['usr_id'] ?? '';
+$user_id = $data['user_id'] ?? '';
 
-if(empty($user_id)) {
+if (empty($user_id)) {
     echo json_encode(["status" => "error", "message" => "User ID tidak valid"]);
     exit;
 }
@@ -38,7 +39,7 @@ try {
         WHERE (e.jenis_event = 'umum' OR e.zona_target = ?)
         ORDER BY e.waktu_event DESC, e.id DESC
     ";
-    
+
     $stmt = $conn->prepare($sql);
     $stmt->execute([$user_id, $zona_user]);
     $jadwal = $stmt->fetchAll(PDO::FETCH_ASSOC);

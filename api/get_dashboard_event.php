@@ -16,11 +16,12 @@ require 'koneksi.php';
 
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
-if (!$data) $data = $_POST;
+if (!$data)
+    $data = $_POST;
 
-$user_id = $data['usr_id'] ?? '';
+$user_id = $data['user_id'] ?? '';
 
-if(empty($user_id)) {
+if (empty($user_id)) {
     echo json_encode(["status" => "error", "message" => "User ID tidak valid"]);
     exit;
 }
@@ -43,7 +44,7 @@ try {
           e.id ASC
         LIMIT 1
     ";
-    
+
     $stmt = $conn->prepare($sql);
     $stmt->execute([$user_id, $zona_user]);
     $event = $stmt->fetch(PDO::FETCH_ASSOC);

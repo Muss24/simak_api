@@ -7,7 +7,10 @@ header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit(); }
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 require_once __DIR__ . '/koneksi.php';
 
@@ -20,7 +23,7 @@ if (!$data) {
 }
 
 // 2. AMBIL ID USER
-$user_id = $data['usr_id'] ?? '';
+$user_id = $data['user_id'] ?? '';
 
 if (empty($user_id)) {
     echo json_encode(["status" => "error", "message" => "User ID tidak valid"]);
@@ -43,10 +46,11 @@ $subDistrict = $data['subDistrict'] ?? '';
 $village = $data['village'] ?? '';
 
 // --- LOGIKA PENENTUAN ZONA BERDASARKAN KECAMATAN ---
-function tentukanZona($kecamatan) {
+function tentukanZona($kecamatan)
+{
     // Hilangkan spasi berlebih dan ubah ke huruf besar agar pengecekan kebal typo
-    $kecamatan = strtoupper(trim($kecamatan)); 
-    
+    $kecamatan = strtoupper(trim($kecamatan));
+
     $zonaA = ['CIKAMPEK', 'JATISARI', 'KOTABARU', 'PURWASARI', 'TIRTAMULYA'];
     $zonaB = ['BANYUSARI', 'CILAMAYA KULON', 'CILAMAYA WETAN', 'LEMAHABANG', 'MAJALAYA', 'RAWAMERTA', 'TELAGASARI', 'TEMPURAN'];
     $zonaC = ['CIAMPEL', 'KARAWANG TIMUR', 'KLARI'];
@@ -54,13 +58,19 @@ function tentukanZona($kecamatan) {
     $zonaE = ['PANGKALAN', 'TEGALWARU'];
     $zonaF = ['BATUJAYA', 'CIBUAYA', 'CILEBAR', 'JAYAKERTA', 'KUTAWALUYA', 'PAKISJAYA', 'PEDES', 'RENGASDENGKLOK', 'TIRTAJAYA'];
 
-    if (in_array($kecamatan, $zonaA)) return 'A';
-    if (in_array($kecamatan, $zonaB)) return 'B';
-    if (in_array($kecamatan, $zonaC)) return 'C';
-    if (in_array($kecamatan, $zonaD)) return 'D';
-    if (in_array($kecamatan, $zonaE)) return 'E';
-    if (in_array($kecamatan, $zonaF)) return 'F';
-    
+    if (in_array($kecamatan, $zonaA))
+        return 'A';
+    if (in_array($kecamatan, $zonaB))
+        return 'B';
+    if (in_array($kecamatan, $zonaC))
+        return 'C';
+    if (in_array($kecamatan, $zonaD))
+        return 'D';
+    if (in_array($kecamatan, $zonaE))
+        return 'E';
+    if (in_array($kecamatan, $zonaF))
+        return 'F';
+
     return null; // Jika kecamatan tidak terdaftar di list
 }
 
@@ -85,9 +95,24 @@ try {
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
-            $address, $birthDate, $birthPlace, $companion, $education, 
-            $experience, $fatherName, $gender, $healthCondition, $is_completed, 
-            $job, $positiveTrait, $program, $skill, $subDistrict, $zona, $village, $gambar, 
+            $address,
+            $birthDate,
+            $birthPlace,
+            $companion,
+            $education,
+            $experience,
+            $fatherName,
+            $gender,
+            $healthCondition,
+            $is_completed,
+            $job,
+            $positiveTrait,
+            $program,
+            $skill,
+            $subDistrict,
+            $zona,
+            $village,
+            $gambar,
             $user_id
         ]);
     } else {
@@ -98,9 +123,23 @@ try {
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
-            $address, $birthDate, $birthPlace, $companion, $education, 
-            $experience, $fatherName, $gender, $healthCondition, $is_completed, 
-            $job, $positiveTrait, $program, $skill, $subDistrict, $zona, $village, 
+            $address,
+            $birthDate,
+            $birthPlace,
+            $companion,
+            $education,
+            $experience,
+            $fatherName,
+            $gender,
+            $healthCondition,
+            $is_completed,
+            $job,
+            $positiveTrait,
+            $program,
+            $skill,
+            $subDistrict,
+            $zona,
+            $village,
             $user_id
         ]);
     }
