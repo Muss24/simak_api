@@ -19,7 +19,13 @@ $user_id = $_POST['user_id'] ?? '';
 $event_id = $_POST['event_id'] ?? '';
 
 if(empty($user_id) || empty($event_id)) {
-    echo json_encode(["status" => "error", "message" => "Data tidak lengkap."]);
+    http_response_code(400);
+    echo json_encode([
+        "status" => "failed",
+        "code" => 400,
+        "status_code" => "Bad Request",
+        "message" => "Data tidak lengkap."
+    ]);
     exit;
 }
 
@@ -29,7 +35,13 @@ try {
     $stmt_absen->execute([$user_id, $event_id]);
 
     if ($stmt_absen->rowCount() == 0) {
-        echo json_encode(["status" => "error", "message" => "Anda belum melakukan absensi. Akses materi ditolak."]);
+        http_response_code(400);
+        echo json_encode([
+            "status" => "failed",
+            "code" => 400,
+            "status_code" => "Bad Request",
+            "message" => "Anda belum melakukan absensi. Akses materi ditolak."
+        ]);
         exit;
     }
 
@@ -39,7 +51,13 @@ try {
     $event = $stmt_event->fetch(PDO::FETCH_ASSOC);
 
     if (!$event || $event['status'] === 'selesai') {
-        echo json_encode(["status" => "error", "message" => "Event telah berakhir. Akses ke materi ditutup."]);
+        http_response_code(400);
+        echo json_encode([
+            "status" => "failed",
+            "code" => 400,
+            "status_code" => "Bad Request",
+            "message" => "Event telah berakhir. Akses ke materi ditutup."
+        ]);
         exit;
     }
 
@@ -51,6 +69,12 @@ try {
     echo json_encode(["status" => "success", "data" => $materials]);
 
 } catch (Exception $e) {
-    echo json_encode(["status" => "error", "message" => "Database Error: " . $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode([
+        "status" => "failed",
+        "code" => 500,
+        "status_code" => "Internal Server Error",
+        "message" => "Database Error: " . $e->getMessage()
+    ]);
 }
 ?>

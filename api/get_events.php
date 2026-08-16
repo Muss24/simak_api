@@ -20,13 +20,16 @@ try {
         ]);
     } else {
         echo json_encode([
-            "status" => "error",
-            "message" => "Belum ada data event di database."
+            "status" => "success",
+            "data" => []
         ]);
     }
 } catch (PDOException $e) {
+    http_response_code(500);
     echo json_encode([
-        "status" => "error", 
+        "status" => "failed",
+        "code" => 500,
+        "status_code" => "Internal Server Error",
         "message" => "Gagal mengambil data event: " . $e->getMessage()
     ]);
 }

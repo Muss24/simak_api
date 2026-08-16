@@ -32,6 +32,12 @@ if ($user && password_verify($password, $user['password'])) {
         "data" => $user 
     ]);
 } else {
-    echo json_encode(["status" => "error", "message" => "Nomor Porsi atau Password salah"]);
+    http_response_code(400);
+    echo json_encode([
+        "status" => "failed",
+        "code" => 400,
+        "status_code" => "Bad Request",
+        "message" => "Nomor Porsi atau Password salah"
+    ]);
 }
 ?>

@@ -27,7 +27,13 @@ try {
     $event_id = $_POST['event_id'] ?? 1;
 
     if(empty($qr_scanned)) {
-        echo json_encode(["status" => "error", "message" => "QR Code kosong tidak dapat diproses."]);
+        http_response_code(400);
+        echo json_encode([
+            "status" => "failed",
+            "code" => 400,
+            "status_code" => "Bad Request",
+            "message" => "QR Code kosong tidak dapat diproses."
+        ]);
         exit;
     }
 
@@ -37,7 +43,13 @@ try {
     $event = $cek_event->fetch(PDO::FETCH_ASSOC);
 
     if (!$event || $event['status'] === 'selesai') {
-        echo json_encode(["status" => "error", "message" => "Gagal absen: Event belum dimulai atau sudah diakhiri."]);
+        http_response_code(400);
+        echo json_encode([
+            "status" => "failed",
+            "code" => 400,
+            "status_code" => "Bad Request",
+            "message" => "Gagal absen: Event belum dimulai atau sudah diakhiri."
+        ]);
         exit;
     }
 
@@ -59,16 +71,31 @@ try {
             if($insert->execute([$user['id'], $event_id])) {
                 echo json_encode(["status" => "success", "message" => "Absensi berhasil dicatat!"]);
             } else {
-                echo json_encode(["status" => "error", "message" => "Gagal menyimpan absensi ke database."]);
+                http_response_code(500);
+                echo json_encode([
+                    "status" => "failed",
+                    "code" => 500,
+                    "status_code" => "Internal Server Error",
+                    "message" => "Gagal menyimpan absensi ke database."
+                ]);
             }
         }
     } else {
-        echo json_encode(["status" => "error", "message" => "QR Code tidak dikenali oleh sistem!"]);
+        http_response_code(400);
+        echo json_encode([
+            "status" => "failed",
+            "code" => 400,
+            "status_code" => "Bad Request",
+            "message" => "QR Code tidak dikenali oleh sistem!"
+        ]);
     }
 } catch (Exception $e) {
     // 5. Tangkap error database dan jadikan JSON
+    http_response_code(500);
     echo json_encode([
-        "status" => "error", 
+        "status" => "failed",
+        "code" => 500,
+        "status_code" => "Internal Server Error",
         "message" => "Database Error: " . $e->getMessage()
     ]);
 }

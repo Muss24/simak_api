@@ -15,9 +15,12 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
 } catch (\PDOException $e) {
+    http_response_code(500);
     echo json_encode([
-        "status" => "error",
-        "message" => "Gagal terhubung ke database Railway: " . $e->getMessage()
+        "status" => "failed",
+        "code" => 500,
+        "status_code" => "Internal Server Error",
+        "message" => "Database Error: " . $e->getMessage()
     ]);
     exit;
 }

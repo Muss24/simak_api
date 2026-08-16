@@ -24,9 +24,21 @@ try {
             "qr_code" => $qr_code_hash
         ]);
     } else {
-        echo json_encode(["status" => "error", "message" => "Gagal mengeksekusi database"]);
+        http_response_code(500);
+        echo json_encode([
+            "status" => "failed",
+            "code" => 500,
+            "status_code" => "Internal Server Error",
+            "message" => "Gagal melakukan registrasi. Silakan coba lagi."
+        ]);
     }
 } catch (PDOException $e) {
-    echo json_encode(["status" => "error", "message" => "Nomor porsi sudah terdaftar"]);
+    http_response_code(400);
+    echo json_encode([
+        "status" => "failed",
+        "code" => 400,
+        "status_code" => "Bad Request",
+        "message" => "Nomor porsi sudah terdaftar"
+    ]);
 }
 ?>

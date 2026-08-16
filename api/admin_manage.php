@@ -91,6 +91,12 @@ try {
     }
 
 } catch (Exception $e) {
-    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode([
+        "status" => "failed",
+        "code" => 500,
+        "status_code" => "Internal Server Error",
+        "message" => $e->getMessage()
+    ]);
 }
 ?>

@@ -18,7 +18,13 @@ require_once __DIR__ . '/koneksi.php';
 $user_id = $_POST['user_id'] ?? '';
 
 if(empty($user_id)) {
-    echo json_encode(["status" => "error", "message" => "User ID tidak valid."]);
+    http_response_code(400);
+    echo json_encode([
+        "status" => "failded",
+        "code" => 400,
+        "status_code" => "Bad Request",
+        "message" => "USer ID tidak valid atau tidak ditemukan"
+    ]);
     exit;
 }
 
@@ -36,6 +42,12 @@ try {
 
     echo json_encode(["status" => "success", "data" => $events]);
 } catch (Exception $e) {
-    echo json_encode(["status" => "error", "message" => "Database Error: " . $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode([
+        "status" => "failed",
+        "code" => 500,
+        "status_code" => "Internal server Error",
+        "message" => "Database Error: " . $e->getMessage()
+    ]);
 }
 ?>
