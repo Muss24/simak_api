@@ -27,7 +27,7 @@ if (empty($user_id)) {
         "status" => "failed",
         "code" => 400,
         "status_code" => "Bad Request",
-        "message" => "User ID tidak valid atau tidak ditemukan"
+        "message" => "User ID tidak Valid atau tidak ditemukan"
     ]);
     exit;
 }
@@ -47,12 +47,12 @@ try {
     if ($user) {
         echo json_encode(["status" => "success", "data" => $user]);
     } else {
-       http_response_code(400);
+       http_response_code(404);
        echo json_encode([
         "status" => "failed",
-        "code" => 400,
-        "status_code" => "Bad Request",
-        "message" => "User ID tidak valid atau tidak ditemukan"
+        "code" => 404,
+        "status_code" => "Not Found",
+        "message" => "User ID tidak ditemukan"
        ]);
     }
 } catch (Exception $e) {

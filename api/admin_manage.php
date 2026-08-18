@@ -21,15 +21,12 @@ try {
     
     elseif ($action === 'create_event') {
         $nama = $_POST['nama_event'];
-        // Tangkap data baru
         $tempat = $_POST['tempat'] ?? '';
         $pembicara = $_POST['pembicara'] ?? '';
-        
-        $jenis = $_POST['jenis_event'] ?? 'umum'; // Ubah default jadi umum
+        $jenis = $_POST['jenis_event'] ?? 'umum';
         $zona_target = $_POST['zona_target'] ?? null;
         $waktu = $_POST['waktu_event'] ?? date('Y-m-d H:i:s'); 
         
-        // Pastikan zona_target null jika eventnya umum
         if ($jenis === 'umum') {
             $zona_target = null;
         }
