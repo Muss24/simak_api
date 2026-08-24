@@ -20,10 +20,9 @@ $user_id = $_POST['user_id'] ?? '';
 if(empty($user_id)) {
     http_response_code(400);
     echo json_encode([
-        "status" => "failded",
-        "code" => 400,
+        "status" => "failed",
         "status_code" => "Bad Request",
-        "message" => "USer ID tidak valid atau tidak ditemukan"
+        "message" => "User ID tidak valid atau tidak ditemukan"
     ]);
     exit;
 }
@@ -45,7 +44,6 @@ try {
     http_response_code(500);
     echo json_encode([
         "status" => "failed",
-        "code" => 500,
         "status_code" => "Internal server Error",
         "message" => "Database Error: " . $e->getMessage()
     ]);

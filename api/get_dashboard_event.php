@@ -25,7 +25,6 @@ if (empty($user_id)) {
     http_response_code(400);
     echo json_encode([
         "status" => "failed",
-        "code" => 400,
         "status_code" => "Bad Request",
         "message" => "User ID tidak valid atau tidak ditemukan"
     ]);
@@ -65,7 +64,6 @@ try {
     http_response_code(500);
     echo json_encode([
         "status" => "failed",
-        "code" => 500,
         "status_code" => "Internal Server Error",
         "message" => "Database Error: " . $e->getMessage()
     ]);

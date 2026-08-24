@@ -25,7 +25,6 @@ if (empty($user_id)) {
     http_response_code(400);
     echo json_encode([
         "status" => "failed",
-        "code" => 400,
         "status_code" => "Bad Request",
         "message" => "User ID tidak Valid atau tidak ditemukan"
     ]);
@@ -35,7 +34,7 @@ if (empty($user_id)) {
 try {
     // Ambil semua data user termasuk ZONA
     $stmt = $conn->prepare("
-        SELECT id, nama_lengkap, nomor_porsi, whatsapp, role, qr_code_hash, 
+        SELECT id, nama_lengkap, nomor_porsi, whatsapp, role, 
                address, birthDate, birthPlace, companion, education, experience, 
                fatherName, gender, healthCondition, is_completed, job, 
                positiveTrait, program, skill, subDistrict, zona, village, gambar 
@@ -50,7 +49,6 @@ try {
        http_response_code(404);
        echo json_encode([
         "status" => "failed",
-        "code" => 404,
         "status_code" => "Not Found",
         "message" => "User ID tidak ditemukan"
        ]);
@@ -59,7 +57,6 @@ try {
     http_response_code(500);
     echo json_encode([
         "status" => "failed",
-        "code" => 500,
         "status_code" => "Internal Server Error",
         "message" => "Database Error: " . $e->getMessage()
     ]);

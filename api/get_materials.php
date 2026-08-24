@@ -22,7 +22,6 @@ if(empty($user_id) || empty($event_id)) {
     http_response_code(400);
     echo json_encode([
         "status" => "failed",
-        "code" => 400,
         "status_code" => "Bad Request",
         "message" => "Data tidak lengkap."
     ]);
@@ -38,7 +37,6 @@ try {
         http_response_code(400);
         echo json_encode([
             "status" => "failed",
-            "code" => 400,
             "status_code" => "Bad Request",
             "message" => "Anda belum melakukan absensi. Akses materi ditolak."
         ]);
@@ -54,7 +52,6 @@ try {
         http_response_code(400);
         echo json_encode([
             "status" => "failed",
-            "code" => 400,
             "status_code" => "Bad Request",
             "message" => "Event telah berakhir. Akses ke materi ditutup."
         ]);
@@ -72,7 +69,6 @@ try {
     http_response_code(500);
     echo json_encode([
         "status" => "failed",
-        "code" => 500,
         "status_code" => "Internal Server Error",
         "message" => "Database Error: " . $e->getMessage()
     ]);

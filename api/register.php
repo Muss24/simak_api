@@ -13,21 +13,31 @@ $nomor_porsi = $_POST['nomor_porsi'] ?? '';
 $whatsapp = $_POST['whatsapp'] ?? '';
 $password = isset($_POST['password']) ? password_hash($_POST['password'], PASSWORD_BCRYPT) : '';
 $role = 'user';
-$qr_code_hash = 'USR-' . bin2hex(random_bytes(8));
 
 try {
-    $stmt = $conn->prepare("INSERT INTO users (nama_lengkap, nomor_porsi, whatsapp, password, role, qr_code_hash) VALUES (?, ?, ?, ?, ?, ?)");
-    if ($stmt->execute([$nama, $nomor_porsi, $whatsapp, $password, $role, $qr_code_hash])) {
+    $cek = $conn->prepare("SELECT id FROM users WHERE nomor_porsi = ? OR whatsapp = ?");
+    $cek->execute([$nomor_porsi, $whatsapp]);
+
+    if ($cek->rowCount() > 0) {
+        http_response_code(409);
+        echo json_encode([
+            "status" => "error",
+            "status_code" => "Conflict",
+            "message" => "Nomor Porsi atau WhatsApp sudah terdaftar!"
+        ]);
+        exit;
+    }
+
+    $stmt = $conn->prepare("INSERT INTO users (nama_lengkap, nomor_porsi, whatsapp, password, role) VALUES (?, ?, ?, ?, ?)");
+    if ($stmt->execute([$nama, $nomor_porsi, $whatsapp, $password, $role])) {
         echo json_encode([
             "status" => "success",
-            "message" => "Registrasi berhasil",
-            "qr_code" => $qr_code_hash
+            "message" => "Registrasi berhasil"
         ]);
     } else {
         http_response_code(500);
         echo json_encode([
             "status" => "failed",
-            "code" => 500,
             "status_code" => "Internal Server Error",
             "message" => "Gagal melakukan registrasi. Silakan coba lagi."
         ]);
@@ -36,7 +46,6 @@ try {
     http_response_code(400);
     echo json_encode([
         "status" => "failed",
-        "code" => 400,
         "status_code" => "Bad Request",
         "message" => "Nomor porsi sudah terdaftar"
     ]);

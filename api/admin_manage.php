@@ -19,6 +19,7 @@ try {
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     } 
     
+    // --- UPDATE: CREATE EVENT DENGAN LOKASI & QR HASH ---
     elseif ($action === 'create_event') {
         $nama = $_POST['nama_event'];
         $tempat = $_POST['tempat'] ?? '';
@@ -27,14 +28,55 @@ try {
         $zona_target = $_POST['zona_target'] ?? null;
         $waktu = $_POST['waktu_event'] ?? date('Y-m-d H:i:s'); 
         
+        // Data Lokasi & QR Code
+        $latitude = $_POST['latitude'] ?? null;
+        $longitude = $_POST['longitude'] ?? null;
+        $radius = $_POST['radius'] ?? 100; // Default 100 meter
+        $qr_hash = 'EVT-' . bin2hex(random_bytes(5)); 
+        
         if ($jenis === 'umum') {
             $zona_target = null;
         }
 
-        // Masukkan tempat dan pembicara ke dalam query INSERT
-        $stmt = $conn->prepare("INSERT INTO events (nama_event, tempat, pembicara, waktu_event, status, jenis_event, zona_target) VALUES (?, ?, ?, ?, 'mendatang', ?, ?)");
-        $stmt->execute([$nama, $tempat, $pembicara, $waktu, $jenis, $zona_target]);
-        echo json_encode(["status" => "success", "message" => "Event berhasil dibuat dengan status mendatang."]);
+        $stmt = $conn->prepare("INSERT INTO events (nama_event, tempat, pembicara, latitude, longitude, radius, waktu_event, status, jenis_event, zona_target, qr_hash) VALUES (?, ?, ?, ?, ?, ?, ?, 'mendatang', ?, ?, ?)");
+        $stmt->execute([$nama, $tempat, $pembicara, $latitude, $longitude, $radius, $waktu, $jenis, $zona_target, $qr_hash]);
+        echo json_encode(["status" => "success", "message" => "Event berhasil dibuat dengan status mendatang dan QR Code siap."]);
+    }
+    
+    // --- UPDATE: FITUR ADMIN TAMBAH USER ---
+    elseif ($action === 'create_user') {
+        $nama = $_POST['nama_lengkap'] ?? '';
+        $porsi = $_POST['nomor_porsi'] ?? '';
+        $wa = $_POST['whatsapp'] ?? '';
+        $password = $_POST['password'] ?? '';
+        
+        if (empty($nama) || empty($porsi) || empty($wa) || empty($password)) {
+            echo json_encode(["status" => "error", "message" => "Semua kolom wajib diisi"]);
+            exit;
+        }
+
+        // Cek apakah Nomor Porsi atau WhatsApp sudah pernah didaftarkan
+        $cek = $conn->prepare("SELECT id FROM users WHERE nomor_porsi = ? OR whatsapp = ?");
+        $cek->execute([$porsi, $wa]);
+        if ($cek->rowCount() > 0) {
+            echo json_encode(["status" => "error", "message" => "Nomor Porsi atau WhatsApp sudah terdaftar!"]);
+            exit;
+        }
+
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $role = 'user';
+
+        $stmt = $conn->prepare("INSERT INTO users (nama_lengkap, nomor_porsi, whatsapp, password, role, is_completed) VALUES (?, ?, ?, ?, ?, 0)");
+        $stmt->execute([$nama, $porsi, $wa, $hashed_password, $role]);
+        
+        // Kembalikan ID User agar FE bisa langsung melengkapi profilnya
+        $new_user_id = $conn->lastInsertId();
+        
+        echo json_encode([
+            "status" => "success", 
+            "message" => "Akun jamaah berhasil dibuat!",
+            "user_id" => $new_user_id
+        ]);
     }
     
     elseif ($action === 'toggle_event') {
@@ -91,7 +133,6 @@ try {
     http_response_code(500);
     echo json_encode([
         "status" => "failed",
-        "code" => 500,
         "status_code" => "Internal Server Error",
         "message" => $e->getMessage()
     ]);
