@@ -43,9 +43,9 @@ try {
                (SELECT COUNT(id) FROM attendances WHERE event_id = e.id AND user_id = ?) as is_attended
         FROM events e
         WHERE (e.jenis_event = 'umum' OR e.zona_target = ?) 
-          AND e.status IN ('aktif', 'mendatang')
+          AND e.status IN ('live', 'mendatang')
         ORDER BY 
-          FIELD(e.status, 'aktif', 'mendatang'), 
+          FIELD(e.status, 'live', 'mendatang'), 
           e.waktu_event ASC, 
           e.id ASC
         LIMIT 1
@@ -58,7 +58,7 @@ try {
     if ($event) {
         echo json_encode(["status" => "success", "data" => $event]);
     } else {
-        echo json_encode(["status" => "success", "data" => null, "message" => "Tidak ada event aktif atau mendatang"]);
+        echo json_encode(["status" => "success", "data" => null, "message" => "Tidak ada event live atau mendatang"]);
     }
 
 } catch (Exception $e) {

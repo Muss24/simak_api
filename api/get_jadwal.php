@@ -43,6 +43,7 @@ try {
                (SELECT COUNT(id) FROM attendances WHERE event_id = e.id AND user_id = ?) as is_attended
         FROM events e
         WHERE (e.jenis_event = 'umum' OR e.zona_target = ?)
+          AND e.status IN ('live', 'mendatang')
         ORDER BY e.waktu_event DESC, e.id DESC
     ";
 
