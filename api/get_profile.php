@@ -37,7 +37,7 @@ try {
         SELECT id, nama_lengkap, nomor_porsi, whatsapp, role, 
                address, birthDate, birthPlace, companion, education, experience, 
                fatherName, gender, healthCondition, is_completed, job, 
-               positiveTrait, program, skill, subDistrict, zona, village, gambar 
+               positiveTrait, program, skill, subDistrict, zona, village, referensi_nama, referensi_wa, referensi_asal, gambar 
         FROM users WHERE id = ?
     ");
     $stmt->execute([$user_id]);

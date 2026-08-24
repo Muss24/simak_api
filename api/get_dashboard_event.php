@@ -38,7 +38,8 @@ try {
     $zona_user = $user['zona'] ?? '';
 
     $sql = "
-        SELECT e.id, e.nama_event, e.tempat, e.pembicara, e.waktu_event, e.status, e.jenis_event, e.zona_target,
+        SELECT e.id, e.nama_event, e.tempat, e.pembicara, e.waktu_event, e.status, e.jenis_event, e.zona_target, 
+               e.qr_hash, e.latitude, e.longitude, e.radius,
                (SELECT COUNT(id) FROM attendances WHERE event_id = e.id AND user_id = ?) as is_attended
         FROM events e
         WHERE (e.jenis_event = 'umum' OR e.zona_target = ?) 
