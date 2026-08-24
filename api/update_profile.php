@@ -50,6 +50,11 @@ $program = $data['program'] ?? '';
 $subDistrict = $data['subDistrict'] ?? '';
 $village = $data['village'] ?? '';
 
+// --- TAMBAHAN DATA REFERENSI ---
+$referensi_nama = $data['referensiNama'] ?? '';
+$referensi_wa = $data['referensiWa'] ?? '';
+$referensi_asal = $data['referensiAsal'] ?? '';
+
 // --- LOGIKA PENENTUAN ZONA BERDASARKAN KECAMATAN ---
 function tentukanZona($kecamatan)
 {
@@ -96,7 +101,7 @@ try {
         $sql = "UPDATE users SET 
                 address=?, birthDate=?, birthPlace=?, companion=?, education=?, 
                 experience=?, fatherName=?, gender=?, healthCondition=?, is_completed=?, 
-                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?, gambar=? 
+                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?, referensi_nama=?, referensi_wa=?, referensi_asal=?, gambar=? 
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -117,6 +122,9 @@ try {
             $subDistrict,
             $zona,
             $village,
+            $referensi_nama,
+            $referensi_wa,
+            $referensi_asal,
             $gambar,
             $user_id
         ]);
@@ -124,7 +132,7 @@ try {
         $sql = "UPDATE users SET 
                 address=?, birthDate=?, birthPlace=?, companion=?, education=?, 
                 experience=?, fatherName=?, gender=?, healthCondition=?, is_completed=?, 
-                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=? 
+                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?, referensi_nama=?, referensi_wa=?, referensi_asal=? 
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -145,6 +153,9 @@ try {
             $subDistrict,
             $zona,
             $village,
+            $referensi_nama,
+            $referensi_wa,
+            $referensi_asal,
             $user_id
         ]);
     }
