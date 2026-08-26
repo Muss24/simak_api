@@ -35,7 +35,7 @@ try {
     // Ambil semua data user termasuk ZONA
     $stmt = $conn->prepare("
         SELECT id, nama_lengkap, nomor_porsi, whatsapp, role, 
-               address, birthDate, birthPlace, companion, education, experience, 
+               address, birthDate, birthPlace, companion, nama_mahram, education, experience, 
                fatherName, gender, healthCondition, is_completed, job, 
                positiveTrait, program, skill, subDistrict, zona, village, referensi_nama, referensi_wa, referensi_asal, gambar 
         FROM users WHERE id = ?

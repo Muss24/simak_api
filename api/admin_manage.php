@@ -79,6 +79,24 @@ try {
         ]);
     }
     
+    elseif ($action === 'get_users') {
+        $stmt = $conn->query("
+            SELECT 
+                u.id, 
+                u.gambar AS foto, 
+                u.nama_lengkap, 
+                u.nomor_porsi, 
+                u.whatsapp AS nomor_telepon, 
+                COALESCE(k.status_jamaah, 'aktif') AS status
+            FROM users u
+            LEFT JOIN keberangkatan k ON u.id = k.user_id
+            WHERE u.role = 'user' 
+            ORDER BY u.nama_lengkap ASC
+        ");
+        
+        echo json_encode(["status" => "success", "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+    }
+
     elseif ($action === 'toggle_event') {
         $id = $_POST['id'];
         $status = $_POST['status'];

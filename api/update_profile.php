@@ -40,6 +40,7 @@ $address = $data['address'] ?? '';
 $birthDate = $data['birthDate'] ?? '';
 $birthPlace = $data['birthPlace'] ?? '';
 $companion = $data['companion'] ?? '';
+$nama_mahram = $data['nama_mahram'] ?? '';
 $education = $data['education'] ?? '';
 $experience = $data['experience'] ?? '';
 $fatherName = $data['fatherName'] ?? '';
@@ -93,13 +94,13 @@ $positiveTrait = (isset($data['positiveTrait']) && is_array($data['positiveTrait
 $skill = (isset($data['skill']) && is_array($data['skill'])) ? implode(", ", $data['skill']) : '';
 
 // 5. HANDLE URL GAMBAR
-$gambar = $data['gambar'] ?? null;
+$gambar = $data['profileImage'] ?? $data['gambar'] ?? null;
 
 try {
     // Tambahkan field `zona=?` ke dalam query SQL
     if ($gambar) {
         $sql = "UPDATE users SET 
-                address=?, birthDate=?, birthPlace=?, companion=?, education=?, 
+                address=?, birthDate=?, birthPlace=?, companion=?,nama_mahram=?, education=?, 
                 experience=?, fatherName=?, gender=?, healthCondition=?, is_completed=?, 
                 job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?, referensi_nama=?, referensi_wa=?, referensi_asal=?, gambar=? 
                 WHERE id=?";
@@ -109,6 +110,7 @@ try {
             $birthDate,
             $birthPlace,
             $companion,
+            $nama_mahram,
             $education,
             $experience,
             $fatherName,
@@ -130,7 +132,7 @@ try {
         ]);
     } else {
         $sql = "UPDATE users SET 
-                address=?, birthDate=?, birthPlace=?, companion=?, education=?, 
+                address=?, birthDate=?, birthPlace=?, companion=?,nama_mahram=?, education=?, 
                 experience=?, fatherName=?, gender=?, healthCondition=?, is_completed=?, 
                 job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?, referensi_nama=?, referensi_wa=?, referensi_asal=? 
                 WHERE id=?";
@@ -140,6 +142,7 @@ try {
             $birthDate,
             $birthPlace,
             $companion,
+            $nama_mahram,
             $education,
             $experience,
             $fatherName,
