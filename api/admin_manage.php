@@ -90,7 +90,6 @@ try {
                 COALESCE(k.status_jamaah, 'aktif') AS status
             FROM users u
             LEFT JOIN keberangkatan k ON u.id = k.user_id
-            WHERE u.role = 'user' 
             ORDER BY u.nama_lengkap ASC
         ");
         
