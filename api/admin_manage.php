@@ -3,7 +3,6 @@ error_reporting(0);
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
 
 header("Access-Control-Allow-Origin: $origin");
-// header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
@@ -11,7 +10,15 @@ header("Content-Type: application/json");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit(); }
 
 require_once __DIR__ . '/koneksi.php';
-$action = $_POST['action'] ?? $_GET['action'] ?? '';
+
+// Tangkap data dari JSON Axios atau $_POST biasa
+$json = file_get_contents('php://input');
+$data = json_decode($json, true);
+if (!$data) {
+    $data = $_POST;
+}
+
+$action = $data['action'] ?? $_GET['action'] ?? '';
 
 try {
     if ($action === 'get_events') {
@@ -19,19 +26,17 @@ try {
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     } 
     
-    // --- UPDATE: CREATE EVENT DENGAN LOKASI & QR HASH ---
     elseif ($action === 'create_event') {
-        $nama = $_POST['nama_event'];
-        $tempat = $_POST['tempat'] ?? '';
-        $pembicara = $_POST['pembicara'] ?? '';
-        $jenis = $_POST['jenis_event'] ?? 'umum';
-        $zona_target = $_POST['zona_target'] ?? null;
-        $waktu = $_POST['waktu_event'] ?? date('Y-m-d H:i:s'); 
+        $nama = $data['nama_event'] ?? $_POST['nama_event'] ?? '';
+        $tempat = $data['tempat'] ?? $_POST['tempat'] ?? '';
+        $pembicara = $data['pembicara'] ?? $_POST['pembicara'] ?? '';
+        $jenis = $data['jenis_event'] ?? $_POST['jenis_event'] ?? 'umum';
+        $zona_target = $data['zona_target'] ?? $_POST['zona_target'] ?? null;
+        $waktu = $data['waktu_event'] ?? $_POST['waktu_event'] ?? date('Y-m-d H:i:s'); 
         
-        // Data Lokasi & QR Code
-        $latitude = $_POST['latitude'] ?? null;
-        $longitude = $_POST['longitude'] ?? null;
-        $radius = $_POST['radius'] ?? 100; // Default 100 meter
+        $latitude = $data['latitude'] ?? $_POST['latitude'] ?? null;
+        $longitude = $data['longitude'] ?? $_POST['longitude'] ?? null;
+        $radius = $data['radius'] ?? $_POST['radius'] ?? 100; 
         $qr_hash = 'EVT-' . bin2hex(random_bytes(5)); 
         
         if ($jenis === 'umum') {
@@ -43,19 +48,17 @@ try {
         echo json_encode(["status" => "success", "message" => "Event berhasil dibuat dengan status mendatang dan QR Code siap."]);
     }
     
-    // --- UPDATE: FITUR ADMIN TAMBAH USER ---
     elseif ($action === 'create_user') {
-        $nama = $_POST['nama_lengkap'] ?? '';
-        $porsi = $_POST['nomor_porsi'] ?? '';
-        $wa = $_POST['whatsapp'] ?? '';
-        $password = $_POST['password'] ?? '';
+        $nama = $data['nama_lengkap'] ?? $_POST['nama_lengkap'] ?? '';
+        $porsi = $data['nomor_porsi'] ?? $_POST['nomor_porsi'] ?? '';
+        $wa = $data['whatsapp'] ?? $_POST['whatsapp'] ?? '';
+        $password = $data['password'] ?? $_POST['password'] ?? '';
         
         if (empty($nama) || empty($porsi) || empty($wa) || empty($password)) {
             echo json_encode(["status" => "error", "message" => "Semua kolom wajib diisi"]);
             exit;
         }
 
-        // Cek apakah Nomor Porsi atau WhatsApp sudah pernah didaftarkan
         $cek = $conn->prepare("SELECT id FROM users WHERE nomor_porsi = ? OR whatsapp = ?");
         $cek->execute([$porsi, $wa]);
         if ($cek->rowCount() > 0) {
@@ -69,7 +72,6 @@ try {
         $stmt = $conn->prepare("INSERT INTO users (nama_lengkap, nomor_porsi, whatsapp, password, role, is_completed) VALUES (?, ?, ?, ?, ?, 0)");
         $stmt->execute([$nama, $porsi, $wa, $hashed_password, $role]);
         
-        // Kembalikan ID User agar FE bisa langsung melengkapi profilnya
         $new_user_id = $conn->lastInsertId();
         
         echo json_encode([
@@ -97,16 +99,15 @@ try {
     }
 
     elseif ($action === 'toggle_event') {
-        $id = $_POST['id'];
-        $status = $_POST['status'];
+        $id = $data['id'] ?? $_POST['id'] ?? '';
+        $status = $data['status'] ?? $_POST['status'] ?? '';
         $stmt = $conn->prepare("UPDATE events SET status = ? WHERE id = ?");
         $stmt->execute([$status, $id]);
         echo json_encode(["status" => "success", "message" => "Status diubah."]);
     }
     
     elseif ($action === 'delete_event') {
-        $id = $_POST['id'];
-        // Hapus materi & absen terkait lebih dulu (Foreign Key Constraint)
+        $id = $data['id'] ?? $_POST['id'] ?? '';
         $conn->prepare("DELETE FROM materials WHERE event_id = ?")->execute([$id]);
         $conn->prepare("DELETE FROM attendances WHERE event_id = ?")->execute([$id]);
         $conn->prepare("DELETE FROM events WHERE id = ?")->execute([$id]);
@@ -114,16 +115,16 @@ try {
     }
 
     elseif ($action === 'get_materials') {
-        $event_id = $_POST['event_id'];
+        $event_id = $data['event_id'] ?? $_POST['event_id'] ?? '';
         $stmt = $conn->prepare("SELECT * FROM materials WHERE event_id = ?");
         $stmt->execute([$event_id]);
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
 
     elseif ($action === 'upload_material') {
-        $event_id = $_POST['event_id'];
-        $judul = $_POST['judul'];
-        $konten = $_POST['konten'] ?? '';
+        $event_id = $_POST['event_id'] ?? $data['event_id'] ?? '';
+        $judul = $_POST['judul'] ?? $data['judul'] ?? '';
+        $konten = $_POST['konten'] ?? $data['konten'] ?? '';
         $file_path = null;
 
         if (isset($_FILES['file_materi']) && $_FILES['file_materi']['error'] === 0) {
@@ -140,7 +141,7 @@ try {
     }
 
     elseif ($action === 'delete_material') {
-        $id = $_POST['id'];
+        $id = $data['id'] ?? $_POST['id'] ?? '';
         $stmt = $conn->prepare("DELETE FROM materials WHERE id = ?");
         $stmt->execute([$id]);
         echo json_encode(["status" => "success", "message" => "Materi dihapus."]);
