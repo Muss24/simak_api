@@ -98,6 +98,18 @@ try {
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
 
+    elseif ($action === 'delete_user') {
+        $user_id = $data['user_id'] ?? $_POST['user_id'] ?? '';
+        if (empty($user_id)) {
+            echo json_encode(["status" => "error", "message" => "User ID wajib diisi."]);
+            exit;
+        }
+        $conn->prepare("DELETE FROM attendances WHERE user_id = ?")->execute([$user_id]);
+        $conn->prepare("DELETE FROM keberangkatan WHERE user_id = ?")->execute([$user_id]);
+        $conn->prepare("DELETE FROM users WHERE id = ?")->execute([$user_id]);
+        echo json_encode(["status" => "success", "message" => "Akun jamaah berhasil dihapus."]);
+    }
+
     elseif ($action === 'toggle_event') {
         $id = $data['id'] ?? $_POST['id'] ?? '';
         $status = $data['status'] ?? $_POST['status'] ?? '';
