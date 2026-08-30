@@ -14,28 +14,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/koneksi.php';
 
-// 1. TANGKAP PAYLOAD JSON DARI REACT
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
-
-if (!$data) {
+if (!$data)
     $data = $_POST;
-}
 
-// 2. AMBIL ID USER
-$user_id = $data['user_id'] ?? '';
+$user_id = $data['usr_id'] ?? $data['user_id'] ?? '';
 
 if (empty($user_id)) {
     http_response_code(400);
-    echo json_encode([
-        "status" => "failed",
-        "status_code" => "Bad Request",
-        "message" => "User ID tidak valid atau tidak ditemukan"
-    ]);
+    echo json_encode(["status" => "error", "message" => "User ID (usr_id) tidak valid atau kosong"]);
     exit;
 }
 
-// 3. AMBIL DATA TEKS
+// 1. DATA TEKS BIODATA
 $address = $data['address'] ?? '';
 $birthDate = $data['birthDate'] ?? '';
 $birthPlace = $data['birthPlace'] ?? '';
@@ -45,18 +37,21 @@ $education = $data['education'] ?? '';
 $experience = $data['experience'] ?? '';
 $fatherName = $data['fatherName'] ?? '';
 $gender = $data['gender'] ?? '';
-$is_completed = !empty($data['is_completed']) ? 1 : 0;
+$is_completed = !empty($data['is_completed']) ? 1 : 1; // Default 1 karena sudah diupdate
 $job = $data['job'] ?? '';
 $program = $data['program'] ?? '';
 $subDistrict = $data['subDistrict'] ?? '';
 $village = $data['village'] ?? '';
 
-// --- TAMBAHAN DATA REFERENSI ---
-$referensi_nama = $data['referensiNama'] ?? '';
-$referensi_wa = $data['referensiWa'] ?? '';
-$referensi_asal = $data['referensiAsal'] ?? '';
+// --- 2. DATA REFERENSI (Diberi opsi fallback berbagai format penulisan dari FE) ---
+$referensi_nama = $data['referenceName'] ?? $data['referensi_nama'] ?? '';
+$referensi_wa = $data['referenceWhatsapp'] ?? $data['referensi_wa'] ?? '';
+$referensi_asal = $data['referenceOrigin'] ?? $data['referensi_asal'] ?? '';
 
-// --- LOGIKA PENENTUAN ZONA BERDASARKAN KECAMATAN ---
+// --- 3. HANDLE GAMBAR (Mendukung profileImage atau gambar) ---
+$gambar = $data['profileImage'] ?? $data['gambar'] ?? null;
+
+// LOGIKA PENENTUAN ZONA BERDASARKAN KECAMATAN
 function tentukanZona($kecamatan)
 {
     // Hilangkan spasi berlebih dan ubah ke huruf besar agar pengecekan kebal typo
@@ -84,25 +79,21 @@ function tentukanZona($kecamatan)
 
     return null; // Jika kecamatan tidak terdaftar di list
 }
-
-// Eksekusi fungsi untuk mendapatkan zona
 $zona = tentukanZona($subDistrict);
 
-// 4. AMBIL DATA ARRAY
-$healthCondition = (isset($data['healthCondition']) && is_array($data['healthCondition'])) ? implode(", ", $data['healthCondition']) : '';
-$positiveTrait = (isset($data['positiveTrait']) && is_array($data['positiveTrait'])) ? implode(", ", $data['positiveTrait']) : '';
-$skill = (isset($data['skill']) && is_array($data['skill'])) ? implode(", ", $data['skill']) : '';
-
-// 5. HANDLE URL GAMBAR
-$gambar = $data['profileImage'] ?? $data['gambar'] ?? null;
+// 4. DATA ARRAY (Diubah jadi string dipisah koma)
+$healthCondition = (isset($data['healthCondition']) && is_array($data['healthCondition'])) ? implode(", ", $data['healthCondition']) : ($data['healthCondition'] ?? '');
+$positiveTrait = (isset($data['positiveTrait']) && is_array($data['positiveTrait'])) ? implode(", ", $data['positiveTrait']) : ($data['positiveTrait'] ?? '');
+$skill = (isset($data['skill']) && is_array($data['skill'])) ? implode(", ", $data['skill']) : ($data['skill'] ?? '');
 
 try {
-    // Tambahkan field `zona=?` ke dalam query SQL
-    if ($gambar) {
+    // Jika gambar ikut dikirim, update kolom gambar. Jika tidak, abaikan kolom gambar agar tidak tertimpa NULL.
+    if (!empty($gambar)) {
         $sql = "UPDATE users SET 
-                address=?, birthDate=?, birthPlace=?, companion=?,nama_mahram=?, education=?, 
+                address=?, birthDate=?, birthPlace=?, companion=?, nama_mahram=?, education=?, 
                 experience=?, fatherName=?, gender=?, healthCondition=?, is_completed=?, 
-                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?, referensi_nama=?, referensi_wa=?, referensi_asal=?, gambar=? 
+                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?, 
+                referensi_nama=?, referensi_wa=?, referensi_asal=?, gambar=? 
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -132,9 +123,10 @@ try {
         ]);
     } else {
         $sql = "UPDATE users SET 
-                address=?, birthDate=?, birthPlace=?, companion=?,nama_mahram=?, education=?, 
+                address=?, birthDate=?, birthPlace=?, companion=?, nama_mahram=?, education=?, 
                 experience=?, fatherName=?, gender=?, healthCondition=?, is_completed=?, 
-                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?, referensi_nama=?, referensi_wa=?, referensi_asal=? 
+                job=?, positiveTrait=?, program=?, skill=?, subDistrict=?, zona=?, village=?,
+                referensi_nama=?, referensi_wa=?, referensi_asal=? 
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -163,13 +155,9 @@ try {
         ]);
     }
 
-    echo json_encode(["status" => "success", "message" => "Data profil berhasil diperbarui!"]);
+    echo json_encode(["status" => "success", "message" => "Data profil dan referensi berhasil diperbarui!"]);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode([
-        "status" => "failed",
-        "status_code" => "Internal Server Error",
-        "message" => "Gagal update data: " . $e->getMessage()
-    ]);
+    echo json_encode(["status" => "error", "message" => "Gagal update data: " . $e->getMessage()]);
 }
 ?>
