@@ -18,7 +18,7 @@ $nomor_porsi = $_POST['nomor_porsi'] ?? '';
 $password = $_POST['password'] ?? '';
 
 // Tambahkan is_completed di dalam SELECT
-$stmt = $conn->prepare("SELECT id, nama_lengkap, nomor_porsi, role, password, is_completed FROM users WHERE nomor_porsi = ?");
+$stmt = $conn->prepare("SELECT id, nama_lengkap, nomor_porsi, role, password, gambar, is_completed FROM users WHERE nomor_porsi = ?");
 $stmt->execute([$nomor_porsi]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
