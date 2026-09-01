@@ -23,7 +23,7 @@ $user_lat = $data['user_lat'] ?? '';
 $user_lon = $data['user_lon'] ?? '';
 
 if(empty($user_id) || empty($qr_hash) || empty($user_lat) || empty($user_lon)) {
-    echo json_encode(["status" => "error", "message" => "Data atau akses lokasi tidak lengkap. Pastikan GPS menyala!"]); exit;
+    echo json_encode(["status" => "error", "message" => "Incomplete data or location access. Please make sure GPS is turned on!"]); exit;
 }
 
 // Fungsi Hitung Jarak (Haversine Formula) dalam satuan METER
@@ -43,10 +43,10 @@ try {
     $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$event) {
-        echo json_encode(["status" => "error", "message" => "QR Code tidak valid!"]); exit;
+        echo json_encode(["status" => "error", "message" => "Invalid QR Code!"]); exit;
     }
     if ($event['status'] !== 'aktif') {
-        echo json_encode(["status" => "error", "message" => "Event ini belum aktif atau sudah selesai."]); exit;
+        echo json_encode(["status" => "error", "message" => "This event is not active or has already ended."]); exit;
     }
 
     // 2. LOGIKA VALIDASI RADIUS
@@ -56,7 +56,7 @@ try {
 
         if ($jarak > $batas_radius) {
             $jarak_bulat = round($jarak);
-            echo json_encode(["status" => "error", "message" => "Gagal Absen! Anda berada di luar radius lokasi acara (Jarak Anda: {$jarak_bulat} meter)."]); exit;
+            echo json_encode(["status" => "error", "message" => "Check-in failed! You are outside the event location radius (your distance: {$jarak_bulat} meter)."]); exit;
         }
     }
 
@@ -64,15 +64,15 @@ try {
     $cek_absen = $conn->prepare("SELECT id FROM attendances WHERE event_id = ? AND user_id = ?");
     $cek_absen->execute([$event['id'], $user_id]);
     if ($cek_absen->rowCount() > 0) {
-        echo json_encode(["status" => "error", "message" => "Anda sudah melakukan absen untuk event ini."]); exit;
+        echo json_encode(["status" => "error", "message" => "You have already checked in for this event."]); exit;
     }
 
     // 4. Catat absen
     $insert = $conn->prepare("INSERT INTO attendances (event_id, user_id, waktu_absen) VALUES (?, ?, NOW())");
     $insert->execute([$event['id'], $user_id]);
 
-    echo json_encode(["status" => "success", "message" => "Absen berhasil dicatat! Materi sudah bisa dibuka."]);
+    echo json_encode(["status" => "success", "message" => "Attendance recorded successfully! The material is now accessible."]);
 } catch (Exception $e) {
-    echo json_encode(["status" => "error", "message" => "Sistem Error: " . $e->getMessage()]);
+    echo json_encode(["status" => "error", "message" => "System Error: " . $e->getMessage()]);
 }
 ?>

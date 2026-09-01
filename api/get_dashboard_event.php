@@ -26,7 +26,7 @@ if (empty($user_id)) {
     echo json_encode([
         "status" => "failed",
         "status_code" => "Bad Request",
-        "message" => "User ID tidak valid atau tidak ditemukan"
+        "message" => "User ID is invalid or missing."
     ]);
     exit;
 }
@@ -38,9 +38,11 @@ try {
     $zona_user = $user['zona'] ?? '';
 
     $sql = "
-        SELECT e.id, e.nama_event, e.tempat, e.pembicara, e.waktu_event, e.status, e.jenis_event, e.zona_target, 
-               e.qr_hash, e.latitude, e.longitude, e.radius,
-               (SELECT COUNT(id) FROM attendances WHERE event_id = e.id AND user_id = ?) as is_attended
+        SELECT e.id,
+               e.nama_event AS eventName, e.tempat AS venue, e.pembicara AS speaker,
+               e.waktu_event AS eventTime, e.status, e.jenis_event AS eventType, e.zona_target AS targetZone,
+               e.qr_hash AS qrHash, e.latitude, e.longitude, e.radius,
+               (SELECT COUNT(id) FROM attendances WHERE event_id = e.id AND user_id = ?) as isAttended
         FROM events e
         WHERE (e.jenis_event = 'umum' OR e.zona_target = ?) 
           AND e.status IN ('live', 'mendatang')
@@ -58,7 +60,7 @@ try {
     if ($event) {
         echo json_encode(["status" => "success", "data" => $event]);
     } else {
-        echo json_encode(["status" => "success", "data" => null, "message" => "Tidak ada event live atau mendatang"]);
+        echo json_encode(["status" => "success", "data" => null, "message" => "No live or upcoming events."]);
     }
 
 } catch (Exception $e) {

@@ -30,7 +30,7 @@ if (empty($user_id)) {
     echo json_encode([
         "status" => "failed",
         "status_code" => "Bad Request",
-        "message" => "User ID tidak valid atau tidak ditemukan"
+        "message" => "User ID is invalid or missing."
     ]);
     exit;
 }
@@ -40,19 +40,19 @@ $address = $data['address'] ?? '';
 $birthDate = $data['birthDate'] ?? '';
 $birthPlace = $data['birthPlace'] ?? '';
 $companion = $data['companion'] ?? '';
-$nama_mahram = $data['nama_mahram'] ?? '';
+$nama_mahram = $data['mahramName'] ?? '';
 $education = $data['education'] ?? '';
 $experience = $data['experience'] ?? '';
 $fatherName = $data['fatherName'] ?? '';
 $gender = $data['gender'] ?? '';
-$is_completed = !empty($data['is_completed']) ? 1 : 0;
+$is_completed = !empty($data['isCompleted']) ? 1 : 0;
 $job = $data['job'] ?? '';
-$program = $data['program'] ?? '';
+$program = $data['departure'] ?? '';
 $subDistrict = $data['subDistrict'] ?? '';
 $village = $data['village'] ?? '';
 
 $referensi_nama = $data['referenceName'] ?? $data['referensi_nama'] ?? '';
-$referensi_wa = $data['referenceWhatsapp'] ?? $data['referensi_wa'] ?? '';
+$referensi_wa = $data['referencePhone'] ?? $data['referensi_wa'] ?? '';
 $referensi_asal = $data['referenceOrigin'] ?? $data['referensi_asal'] ?? '';
 
 // --- LOGIKA PENENTUAN ZONA BERDASARKAN KECAMATAN ---
@@ -88,9 +88,9 @@ function tentukanZona($kecamatan)
 $zona = tentukanZona($subDistrict);
 
 // 4. AMBIL DATA ARRAY
-$healthCondition = (isset($data['healthCondition']) && is_array($data['healthCondition'])) ? implode(", ", $data['healthCondition']) : '';
-$positiveTrait = (isset($data['positiveTrait']) && is_array($data['positiveTrait'])) ? implode(", ", $data['positiveTrait']) : '';
-$skill = (isset($data['skill']) && is_array($data['skill'])) ? implode(", ", $data['skill']) : '';
+$healthCondition = (isset($data['health']) && is_array($data['health'])) ? implode(", ", $data['health']) : '';
+$positiveTrait = (isset($data['contribution']) && is_array($data['contribution'])) ? implode(", ", $data['contribution']) : '';
+$skill = (isset($data['expertise']) && is_array($data['expertise'])) ? implode(", ", $data['expertise']) : '';
 
 // 5. HANDLE URL GAMBAR
 $gambar = $data['profileImage'] ?? $data['gambar'] ?? null;
@@ -162,13 +162,13 @@ try {
         ]);
     }
 
-    echo json_encode(["status" => "success", "message" => "Data profil berhasil diperbarui!"]);
+    echo json_encode(["status" => "success", "message" => "Profile updated successfully!"]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
         "status" => "failed",
         "status_code" => "Internal Server Error",
-        "message" => "Gagal update data: " . $e->getMessage()
+        "message" => "Failed to update data: " . $e->getMessage()
     ]);
 }
 ?>

@@ -10,7 +10,7 @@ require_once __DIR__ . '/koneksi.php';
 
 try {
     // Mengambil data event. Kita gunakan LIMIT 1 karena fokus pada satu event permanen.
-    $stmt = $conn->query("SELECT id, nama_event, status FROM events LIMIT 1");
+    $stmt = $conn->query("SELECT id, nama_event AS eventName, status FROM events LIMIT 1");
     $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if ($events) {
@@ -29,7 +29,7 @@ try {
     echo json_encode([
         "status" => "failed",
         "status_code" => "Internal Server Error",
-        "message" => "Gagal mengambil data event: " . $e->getMessage()
+        "message" => "Failed to fetch event data: " . $e->getMessage()
     ]);
 }
 ?>

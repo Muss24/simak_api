@@ -26,7 +26,7 @@ if (empty($user_id)) {
     echo json_encode([
         "status" => "failed",
         "status_code" => "Bad Request",
-        "message" => "User ID tidak Valid atau tidak ditemukan"
+        "message" => "User ID is invalid or missing."
     ]);
     exit;
 }
@@ -44,13 +44,43 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
-        echo json_encode(["status" => "success", "data" => $user]);
+        echo json_encode(["status" => "success", 
+        "data" => [
+                "id" => $user['id'],
+                "fullName" => $user['nama_lengkap'],
+                "porsiNumber" => $user['nomor_porsi'],
+                "whatsapp" => $user['whatsapp'],
+                "role" => $user['role'],
+                "address" => $user['address'],
+                "birthDate" => $user['birthDate'],
+                "birthPlace" => $user['birthPlace'],
+                "companion" => $user['companion'],
+                "mahramName" => $user['nama_mahram'],
+                "education" => $user['education'],
+                "experience" => $user['experience'],
+                "fatherName" => $user['fatherName'],
+                "gender" => $user['gender'],
+                "health" => $user['healthCondition'],
+                "isCompleted" => (bool) $user['is_completed'],
+                "job" => $user['job'],
+                "contribution" => $user['positiveTrait'],
+                "depature" => $user['program'],
+                "expertise" => $user['skill'],
+                "subDistrict" => $user['subDistrict'],
+                "zone" => $user['zona'],
+                "village" => $user['village'],
+                "referenceName" => $user['referensi_nama'],
+                "referencePhone" => $user['referensi_wa'],
+                "referenceOrigin" => $user['referensi_asal'],
+                "profileImage" => $user['gambar'],
+            ],
+        ]);
     } else {
        http_response_code(404);
        echo json_encode([
         "status" => "failed",
         "status_code" => "Not Found",
-        "message" => "User ID tidak ditemukan"
+        "message" => "User ID not found"
        ]);
     }
 } catch (Exception $e) {

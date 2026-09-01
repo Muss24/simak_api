@@ -23,7 +23,7 @@ if(empty($user_id) || empty($event_id)) {
     echo json_encode([
         "status" => "failed",
         "status_code" => "Bad Request",
-        "message" => "Data tidak lengkap."
+        "message" => "Incomplete data."
     ]);
     exit;
 }
@@ -38,7 +38,7 @@ try {
         echo json_encode([
             "status" => "failed",
             "status_code" => "Bad Request",
-            "message" => "Anda belum melakukan absensi. Akses materi ditolak."
+            "message" => "You have not checked in for this event. Access to materials is denied."
         ]);
         exit;
     }
@@ -53,13 +53,13 @@ try {
         echo json_encode([
             "status" => "failed",
             "status_code" => "Bad Request",
-            "message" => "Event telah berakhir. Akses ke materi ditutup."
+            "message" => "Event has ended. Access to materials is closed."
         ]);
         exit;
     }
 
     // 3. Ambil data materi TERMASUK file_path
-    $stmt_materi = $conn->prepare("SELECT id, judul, konten, file_path FROM materials WHERE event_id = ?");
+    $stmt_materi = $conn->prepare("SELECT id, judul AS title, konten AS content, file_path AS filePath FROM materials WHERE event_id = ?");
     $stmt_materi->execute([$event_id]);
     $materials = $stmt_materi->fetchAll(PDO::FETCH_ASSOC);
 

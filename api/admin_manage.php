@@ -22,7 +22,12 @@ $action = $data['action'] ?? $_GET['action'] ?? '';
 
 try {
     if ($action === 'get_events') {
-        $stmt = $conn->query("SELECT * FROM events ORDER BY id DESC");
+        $stmt = $conn->query("
+        SELECT id, nama_event AS eventName, tempat AS venue, pembicara AS speaker,
+                   latitude, longitude, radius, waktu_event AS eventTime, status,
+                   jenis_event AS eventType, zona_target AS targetZone, qr_hash AS qrHash
+            FROM events ORDER BY id DESC
+        ");
         echo json_encode(["status" => "success", "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     } 
     
@@ -45,7 +50,7 @@ try {
 
         $stmt = $conn->prepare("INSERT INTO events (nama_event, tempat, pembicara, latitude, longitude, radius, waktu_event, status, jenis_event, zona_target, qr_hash) VALUES (?, ?, ?, ?, ?, ?, ?, 'mendatang', ?, ?, ?)");
         $stmt->execute([$nama, $tempat, $pembicara, $latitude, $longitude, $radius, $waktu, $jenis, $zona_target, $qr_hash]);
-        echo json_encode(["status" => "success", "message" => "Event berhasil dibuat dengan status mendatang dan QR Code siap."]);
+        echo json_encode(["status" => "success", "message" => "Event created successfully with pending status and QR Code ready."]);
     }
     
     elseif ($action === 'create_user') {
@@ -55,14 +60,14 @@ try {
         $password = $data['password'] ?? $_POST['password'] ?? '';
         
         if (empty($nama) || empty($porsi) || empty($wa) || empty($password)) {
-            echo json_encode(["status" => "error", "message" => "Semua kolom wajib diisi"]);
+            echo json_encode(["status" => "error", "message" => "All fields are required"]);
             exit;
         }
 
         $cek = $conn->prepare("SELECT id FROM users WHERE nomor_porsi = ? OR whatsapp = ?");
         $cek->execute([$porsi, $wa]);
         if ($cek->rowCount() > 0) {
-            echo json_encode(["status" => "error", "message" => "Nomor Porsi atau WhatsApp sudah terdaftar!"]);
+            echo json_encode(["status" => "error", "message" => "Number or WhatsApp already registered!"]);
             exit;
         }
 
@@ -76,7 +81,7 @@ try {
         
         echo json_encode([
             "status" => "success", 
-            "message" => "Akun jamaah berhasil dibuat!",
+            "message" => "Jamaah account created successfully!",
             "user_id" => $new_user_id
         ]);
     }
@@ -85,10 +90,10 @@ try {
         $stmt = $conn->query("
             SELECT 
                 u.id, 
-                u.gambar AS foto, 
-                u.nama_lengkap, 
-                u.nomor_porsi, 
-                u.whatsapp AS nomor_telepon, 
+                u.gambar AS PhotoUrl, 
+                u.nama_lengkap AS fullName, 
+                u.nomor_porsi AS portionNumber, 
+                u.whatsapp AS PhoneNumber, 
                 COALESCE(k.status_jamaah, 'aktif') AS status
             FROM users u
             LEFT JOIN keberangkatan k ON u.id = k.user_id
@@ -101,13 +106,13 @@ try {
     elseif ($action === 'delete_user') {
         $user_id = $data['user_id'] ?? $_POST['user_id'] ?? '';
         if (empty($user_id)) {
-            echo json_encode(["status" => "error", "message" => "User ID wajib diisi."]);
+            echo json_encode(["status" => "error", "message" => "User ID is required."]);
             exit;
         }
         $conn->prepare("DELETE FROM attendances WHERE user_id = ?")->execute([$user_id]);
         $conn->prepare("DELETE FROM keberangkatan WHERE user_id = ?")->execute([$user_id]);
         $conn->prepare("DELETE FROM users WHERE id = ?")->execute([$user_id]);
-        echo json_encode(["status" => "success", "message" => "Akun jamaah berhasil dihapus."]);
+        echo json_encode(["status" => "success", "message" => "Jamaah account deleted successfully."]);
     }
 
     elseif ($action === 'toggle_event') {
@@ -115,7 +120,7 @@ try {
         $status = $data['status'] ?? $_POST['status'] ?? '';
         $stmt = $conn->prepare("UPDATE events SET status = ? WHERE id = ?");
         $stmt->execute([$status, $id]);
-        echo json_encode(["status" => "success", "message" => "Status diubah."]);
+        echo json_encode(["status" => "success", "message" => "Status updated successfully."]);
     }
     
     elseif ($action === 'delete_event') {
@@ -123,7 +128,7 @@ try {
         $conn->prepare("DELETE FROM materials WHERE event_id = ?")->execute([$id]);
         $conn->prepare("DELETE FROM attendances WHERE event_id = ?")->execute([$id]);
         $conn->prepare("DELETE FROM events WHERE id = ?")->execute([$id]);
-        echo json_encode(["status" => "success", "message" => "Event dihapus."]);
+        echo json_encode(["status" => "success", "message" => "Event deleted successfully."]);
     }
 
     elseif ($action === 'get_materials') {
@@ -149,14 +154,14 @@ try {
 
         $stmt = $conn->prepare("INSERT INTO materials (event_id, judul, konten, file_path) VALUES (?, ?, ?, ?)");
         $stmt->execute([$event_id, $judul, $konten, $file_path]);
-        echo json_encode(["status" => "success", "message" => "Materi ditambahkan."]);
+        echo json_encode(["status" => "success", "message" => "Material added successfully."]);
     }
 
     elseif ($action === 'delete_material') {
         $id = $data['id'] ?? $_POST['id'] ?? '';
         $stmt = $conn->prepare("DELETE FROM materials WHERE id = ?");
         $stmt->execute([$id]);
-        echo json_encode(["status" => "success", "message" => "Materi dihapus."]);
+        echo json_encode(["status" => "success", "message" => "Material deleted successfully."]);
     }
 
 } catch (Exception $e) {

@@ -23,7 +23,7 @@ try {
         echo json_encode([
             "status" => "error",
             "status_code" => "Conflict",
-            "message" => "Nomor Porsi atau WhatsApp sudah terdaftar!"
+            "message" => "Portion number or WhatsApp already registered!"
         ]);
         exit;
     }
@@ -32,14 +32,14 @@ try {
     if ($stmt->execute([$nama, $nomor_porsi, $whatsapp, $password, $role])) {
         echo json_encode([
             "status" => "success",
-            "message" => "Registrasi berhasil"
+            "message" => "Registration successful",
         ]);
     } else {
         http_response_code(500);
         echo json_encode([
             "status" => "failed",
             "status_code" => "Internal Server Error",
-            "message" => "Gagal melakukan registrasi. Silakan coba lagi."
+            "message" => "Failed to register. Please try again."
         ]);
     }
 } catch (PDOException $e) {
@@ -47,7 +47,7 @@ try {
     echo json_encode([
         "status" => "failed",
         "status_code" => "Bad Request",
-        "message" => "Nomor porsi sudah terdaftar"
+        "message" => "Portion number already registered"
     ]);
 }
 ?>

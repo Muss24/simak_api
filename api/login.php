@@ -18,7 +18,7 @@ $nomor_porsi = $_POST['nomor_porsi'] ?? '';
 $password = $_POST['password'] ?? '';
 
 // Tambahkan is_completed di dalam SELECT
-$stmt = $conn->prepare("SELECT id, nama_lengkap, nomor_porsi, role, password, gambar as profile_image, is_completed FROM users WHERE nomor_porsi = ?");
+$stmt = $conn->prepare("SELECT id, nama_lengkap, nomor_porsi, role, password, gambar, is_completed FROM users WHERE nomor_porsi = ?");
 $stmt->execute([$nomor_porsi]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -28,7 +28,14 @@ if ($user && password_verify($password, $user['password'])) {
     echo json_encode([
         "status" => "success",
         "message" => "Login berhasil",
-        "data" => $user 
+        "data" => [
+            "id" => $user['id'],
+            "fullName" => $user['nama_lengkap'],
+            "porsiNumber" => $user['nomor_porsi'],
+            "role" => $user['role'],
+            "profileImage" => $user['gambar'],
+            "isCompleted" => (bool) $user['is_completed'],
+        ], 
     ]);
 } else {
     http_response_code(400);
