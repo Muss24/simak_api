@@ -164,6 +164,88 @@ try {
         echo json_encode(["status" => "success", "message" => "Material deleted successfully."]);
     }
 
+    elseif ($action === 'get_jamaah') {
+        $user_id = $data['user_id'] ?? $_POST['user_id'] ?? '';
+        if (empty($user_id)) {
+            http_response_code(400);
+            echo json_encode(["status" => "failed", "statusCode" => "Bad Request", "message" => "User ID is required."]);
+            exit;
+        }
+ 
+        $stmtUser = $conn->prepare("
+            SELECT id, nama_lengkap, nomor_porsi, whatsapp, role,
+                   address, birthDate, birthPlace, companion, nama_mahram, education, experience,
+                   fatherName, gender, healthCondition, is_completed, job,
+                   positiveTrait, program, skill, subDistrict, zona, village,
+                   referensi_nama, referensi_wa, referensi_asal, gambar
+            FROM users WHERE id = ?
+        ");
+        $stmtUser->execute([$user_id]);
+        $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
+ 
+        if (!$user) {
+            http_response_code(404);
+            echo json_encode(["status" => "failed", "statusCode" => "Not Found", "message" => "User ID not found"]);
+            exit;
+        }
+ 
+        $stmtDok = $conn->prepare("SELECT * FROM keberangkatan WHERE user_id = ? LIMIT 1");
+        $stmtDok->execute([$user_id]);
+        $dok = $stmtDok->fetch(PDO::FETCH_ASSOC);
+ 
+        echo json_encode([
+            "status" => "success",
+            "data" => [
+                "id" => $user['id'],
+                "fullName" => $user['nama_lengkap'],
+                "portionNumber" => $user['nomor_porsi'],
+                "whatsapp" => $user['whatsapp'],
+                "role" => $user['role'],
+                "address" => $user['address'],
+                "birthDate" => $user['birthDate'],
+                "birthPlace" => $user['birthPlace'],
+                "companion" => $user['companion'],
+                "mahramName" => $user['nama_mahram'],
+                "education" => $user['education'],
+                "experience" => $user['experience'],
+                "fatherName" => $user['fatherName'],
+                "gender" => $user['gender'],
+                "health" => $user['healthCondition'],
+                "isCompleted" => (bool) $user['is_completed'],
+                "job" => $user['job'],
+                "contribution" => $user['positiveTrait'],
+                "depature" => $user['program'],
+                "expertise" => $user['skill'],
+                "subDistrict" => $user['subDistrict'],
+                "zone" => $user['zona'],
+                "village" => $user['village'],
+                "referenceName" => $user['referensi_nama'],
+                "referencePhone" => $user['referensi_wa'],
+                "referenceOrigin" => $user['referensi_asal'],
+                "profileImage" => $user['gambar'],
+                "pilgrimStatus" => $dok['status_jamaah'] ?? null,
+                "plotNumber" => $dok['plot'] ?? null,
+                "batch" => $dok['kloter'] ?? null,
+                "group" => $dok['rombongan'] ?? null,
+                "team" => $dok['regu'] ?? null,
+                "currPorsionPosition" => $dok['posisi_porsi'] ?? null,
+                "currPorstionStatus" => $dok['status_porsi'] ?? null,
+                "currPorsionPositionBackup" => $dok['porsi_cadangan'] ?? null,
+                "currPorstionStatusBackup" => $dok['status_cadangan'] ?? null,
+                "passport" => $dok['passport'] ?? null,
+                "visa" => $dok['visa'] ?? null,
+                "mutationStatus" => $dok['mutasi'] ?? null,
+                "biometricStatus" => $dok['bio_metrik'] ?? null,
+                "puskesmasStatus" => $dok['puskesmas'] ?? null,
+                "mcuStatus" => $dok['mcu'] ?? null,
+                "paymentStatus" => $dok['pelunasan'] ?? null,
+                "googleFormStatus" => $dok['gform'] ?? null,
+                "photoStatus" => $dok['foto'] ?? null,
+                "spphStatus" => $dok['spph'] ?? null,
+            ],
+        ]);
+    }
+
      elseif ($action === 'edit_users') {
         $user_id = $data['user_id'] ?? $_POST['user_id'] ?? '';
         if (empty($user_id)) {
