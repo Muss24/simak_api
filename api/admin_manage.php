@@ -222,7 +222,7 @@ try {
                 "referenceName" => $user['referensi_nama'],
                 "referencePhone" => $user['referensi_wa'],
                 "referenceOrigin" => $user['referensi_asal'],
-                "profileImage" => $user['gambar'],
+                "PhotoUrl" => $user['gambar'],
                 "pilgrimStatus" => $dok['status_jamaah'] ?? null,
                 "plotNumber" => $dok['plot'] ?? null,
                 "batch" => $dok['kloter'] ?? null,

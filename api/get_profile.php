@@ -59,7 +59,7 @@ try {
                 // Data Profil & Biodata Utama
                 "id" => $user['id'],
                 "fullName" => $user['nama_lengkap'],
-                "porsiNumber" => $user['nomor_porsi'],
+                "portionNumber" => $user['nomor_porsi'],
                 "whatsapp" => $user['whatsapp'],
                 "role" => $user['role'],
                 "address" => $user['address'],
@@ -83,7 +83,7 @@ try {
                 "referenceName" => $user['referensi_nama'],
                 "referencePhone" => $user['referensi_wa'],
                 "referenceOrigin" => $user['referensi_asal'],
-                "profileImage" => $user['gambar'],
+                "PhotoUrl" => $user['gambar'],
 
                 // Data Keberangkatan & Dokumen (Default value jika tabel keberangkatan kosong)
                 "pilgrimStatus" => $user['status_jamaah'] ?? 'aktif',

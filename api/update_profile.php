@@ -47,7 +47,7 @@ $fatherName = $data['fatherName'] ?? '';
 $gender = $data['gender'] ?? '';
 $is_completed = !empty($data['isCompleted']) ? 1 : 0;
 $job = $data['job'] ?? '';
-$program = $data['departure'] ?? '';
+$program = $data['depature'] ?? '';
 $subDistrict = $data['subDistrict'] ?? '';
 $village = $data['village'] ?? '';
 
@@ -96,7 +96,6 @@ $skill = (isset($data['expertise']) && is_array($data['expertise'])) ? implode("
 $gambar = $data['profileImage'] ?? $data['gambar'] ?? null;
 
 try {
-    // Tambahkan field `zona=?` ke dalam query SQL
     if ($gambar) {
         $sql = "UPDATE users SET 
                 address=?, birthDate=?, birthPlace=?, companion=?,nama_mahram=?, education=?, 

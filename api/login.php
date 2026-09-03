@@ -31,9 +31,9 @@ if ($user && password_verify($password, $user['password'])) {
         "data" => [
             "id" => $user['id'],
             "fullName" => $user['nama_lengkap'],
-            "porsiNumber" => $user['nomor_porsi'],
+            "portionNumber" => $user['nomor_porsi'],
             "role" => $user['role'],
-            "profileImage" => $user['gambar'],
+            "PhotoUrl" => $user['gambar'],
             "isCompleted" => (bool) $user['is_completed'],
         ], 
     ]);
