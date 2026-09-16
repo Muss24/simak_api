@@ -45,7 +45,7 @@ try {
     if (!$event) {
         echo json_encode(["status" => "error", "message" => "Invalid QR Code!"]); exit;
     }
-    if ($event['status'] !== 'aktif') {
+    if ($event['status'] !== 'live') {
         echo json_encode(["status" => "error", "message" => "This event is not active or has already ended."]); exit;
     }
 
